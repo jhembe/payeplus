@@ -113,9 +113,14 @@ export function Header({
           title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
           className={cn(
             'flex items-center justify-center rounded-lg border',
-            'border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06]',
             'transition-all duration-200 min-h-[44px] min-w-[44px]',
-            'text-slate-400 hover:text-slate-200'
+        
+            // Light mode (explicit)
+            'bg-white border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+        
+            // Dark mode
+            'dark:bg-white/[0.03] dark:border-white/[0.07]',
+            'dark:text-slate-400 dark:hover:bg-white/[0.06] dark:hover:text-slate-200'
           )}
         >
           {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
