@@ -29,6 +29,7 @@ export function ExportButton({
   disabled = false,
 }: ExportButtonProps) {
   const [open, setOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [includeEmployer, setIncludeEmployer] = useState(true);
   const [exported, setExported] = useState<'pdf' | 'html' | null>(null);
 
@@ -48,17 +49,27 @@ export function ExportButton({
 
 
   const handleExport = async (type: 'pdf' | 'html') => {
-    if (type === 'pdf') {
-      await downloadPDF(input);
-    } else {
-      downloadHTMLFile(input);
+    if (isExporting) return;
+  
+    try {
+      setIsExporting(true);
+  
+      if (type === 'pdf') {
+        await downloadPDF(input);
+      } else {
+        downloadHTMLFile(input);
+      }
+  
+      setExported(type);
+    } finally {
+      setIsExporting(false);
+      setTimeout(() => {
+        setExported(null);
+        setOpen(false);
+      }, 1800);
     }
-    setExported(type);
-    setTimeout(() => {
-      setExported(null);
-      setOpen(false);
-    }, 1800);
   };
+
 
   return (
     <>
@@ -193,28 +204,55 @@ export function ExportButton({
               {/* Export buttons */}
               <div className="px-6 pb-6 space-y-2.5">
                 {/* Print to PDF */}
+
                 <button
                   onClick={() => handleExport('pdf')}
+                  disabled={isExporting}
                   className={cn(
                     'w-full flex items-center justify-center gap-2.5 py-3 rounded-xl',
                     'font-semibold text-sm transition-all duration-200',
-                    exported === 'pdf'
-                      ? 'bg-emerald-500 text-white'
-                      : 'bg-gradient-to-r from-brand-500 to-electric-500 text-white hover:opacity-90 active:scale-[0.98]',
+                    isExporting
+                      ? 'bg-slate-500/40 text-slate-300 cursor-not-allowed'
+                      : exported === 'pdf'
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-gradient-to-r from-brand-500 to-electric-500 text-white hover:opacity-90 active:scale-[0.98]',
                     'shadow-brand-sm'
                   )}
                 >
-                  {exported === 'pdf' ? (
-                    <>
-                      <Check size={16} />
-                      Downloaded!
-                    </>
-                  ) : (
-                    <>
-                      <FileText size={16} />
-                      Download PDF
-                    </>
-                  )}
+                {isExporting ? (
+                  <>
+                    <svg
+                      className="animate-spin h-4 w-4"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
+                    </svg>
+                    Preparing PDF…
+                  </>
+                ) : exported === 'pdf' ? (
+                  <>
+                    <Check size={16} />
+                    Downloaded!
+                  </>
+                ) : (
+                  <>
+                    <FileText size={16} />
+                    Download PDF
+                  </>
+                )}
                 </button>
 
                 {/* Download HTML */}
