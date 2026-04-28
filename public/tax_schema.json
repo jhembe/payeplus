@@ -1,0 +1,48 @@
+{
+  "version": "2025.1.0",
+  "year": 2025,
+  "last_updated": "2025-01-01",
+  "currency": "TZS",
+  "usd_rate": 2650,
+  "nssf_employee_rate": 0.1,
+  "nssf_employer_rate": 0.1,
+  "sdl_rate": 0.045,
+  "wcf_rate": 0.005,
+  "paye_brackets": [
+    {
+      "min": 0,
+      "max": 270000,
+      "rate": 0,
+      "base": 0,
+      "label": "Nil Band"
+    },
+    {
+      "min": 270000,
+      "max": 520000,
+      "rate": 0.08,
+      "base": 0,
+      "label": "8% Band"
+    },
+    {
+      "min": 520000,
+      "max": 760000,
+      "rate": 0.20,
+      "base": 20000,
+      "label": "20% Band"
+    },
+    {
+      "min": 760000,
+      "max": 1000000,
+      "rate": 0.25,
+      "base": 68000,
+      "label": "25% Band"
+    },
+    {
+      "min": 1000000,
+      "max": null,
+      "rate": 0.30,
+      "base": 128000,
+      "label": "30% Band"
+    }
+  ]
+}

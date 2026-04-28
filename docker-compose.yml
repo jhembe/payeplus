@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  payeplus:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: payeplus:latest
+    container_name: payeplus
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Optional: override schema URL to serve from external CDN/API
+      # - NEXT_PUBLIC_SCHEMA_URL=https://your-cdn.com/tax_schema.json
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - caddy_network
+
+networks:
+  caddy_network:
+    external: true
+    name: caddy_network
