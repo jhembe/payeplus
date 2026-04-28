@@ -59,28 +59,42 @@ interface CustomLabelProps {
   fill?: string;
 }
 
-function CustomLabel({ x = 0, y = 0, width = 0, height = 0, value = 0, fill }: CustomLabelProps) {
-  if (height < 24 || !value) return null;
+function CustomLabel({
+  x = 0,
+  y = 0,
+  width = 0,
+  height = 0,
+  value = 0,
+  fill,
+}: CustomLabelProps) {
+  if (!value) return null;
+
+  const isTall = height >= 24;
+
   return (
-    <text
-      x={x + width / 2}
-      y={y + height / 2}
-      textAnchor="middle"
-      dominantBaseline="middle"
-      fill={fill ?? '#fff'}
-      fontSize={11}
-      fontFamily="DM Mono, monospace"
-      fontWeight={600}
-      fillOpacity={0.9}
-    >
-      {compactNumber(value)}
-    </text>
-  );
-}
+      <text
+        x={x + width / 2}
+        y={isTall ? y + height / 2 : y - 6}
+        textAnchor="middle"
+        dominantBaseline={isTall ? 'middle' : 'auto'}
+        fill={isTall ? fill ?? '#fff' : '#CBD5F5'}
+        fontSize={11}
+        fontFamily="DM Mono, monospace"
+        fontWeight={600}
+        fillOpacity={0.95}
+      >
+        {compactNumber(value)}
+      </text>
+    );
+  }
 
 export function WaterfallChart({ breakdown, className }: WaterfallChartProps) {
   const data = buildWaterfallData(breakdown);
-  const maxValue = breakdown.gross + breakdown.benefits;
+  const maxValue =
+  breakdown.gross +
+  breakdown.benefits +
+  breakdown.nssf +
+  breakdown.paye;
 
   return (
     <motion.div
@@ -134,7 +148,7 @@ export function WaterfallChart({ breakdown, className }: WaterfallChartProps) {
           />
           <YAxis
             tickFormatter={(v) => compactNumber(v)}
-            domain={[0, maxValue * 1.1]}
+            domain={[0, maxValue * 1.15]}
             tick={{
               fill: '#475569',
               fontSize: 10,
