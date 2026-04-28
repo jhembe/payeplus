@@ -594,3 +594,28 @@ export function downloadHTMLFile(input: ReportInput): void {
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
+
+
+export async function downloadPDF(input: ReportInput): Promise<void> {
+  const res = await fetch('/api/export/pdf', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+
+  if (!res.ok) {
+    throw new Error('PDF generation failed');
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'payeplus-salary-report.pdf';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
+}
