@@ -396,9 +396,14 @@ export function generateReportHTML(input: ReportInput): string {
       <div class="waterfall">
         ${[
           { name: breakdown.benefits > 0 ? 'Base Gross' : 'Gross Salary', value: breakdown.gross, color: '#6366F1' },
-          ...(breakdown.benefits > 0 ? [{ name: 'Benefits', value: breakdown.benefits, color: '#A78BFA' }] : []),
+          ...(breakdown.benefits > 0
+            ? [{ name: 'Benefits', value: breakdown.benefits, color: '#A78BFA' }]
+            : []),
           { name: 'NSSF (−)', value: breakdown.nssf, color: '#F59E0B' },
           { name: 'PAYE Tax (−)', value: breakdown.paye, color: '#EF4444' },
+          ...(breakdown.heslb > 0
+            ? [{ name: 'HESLB (−)', value: breakdown.heslb, color: '#2563EB' }]
+            : []),
           ...(breakdown.custom_fixed + breakdown.custom_percent_amount > 0
             ? [{ name: 'Custom Ded. (−)', value: breakdown.custom_fixed + breakdown.custom_percent_amount, color: '#EC4899' }]
             : []),
@@ -451,6 +456,13 @@ export function generateReportHTML(input: ReportInput): string {
             <td>Progressive (${pct(breakdown.marginal_rate, 0)} marginal)</td>
             <td>(${fmt(breakdown.paye)})</td>
           </tr>
+          ${breakdown.heslb > 0 ? `
+          <tr class="row-negative">
+            <td>HESLB Student Loan</td>
+            <td>Post-tax deduction</td>
+            <td>${pct(advanced.heslb_rate, 0)} of gross</td>
+            <td>(${fmt(breakdown.heslb)})</td>
+          </tr>` : ''}
           ${breakdown.custom_fixed > 0 ? `<tr class="row-negative"><td>Fixed Deduction</td><td>Other (loan / fee)</td><td>Fixed amount</td><td>(${fmt(breakdown.custom_fixed)})</td></tr>` : ''}
           ${breakdown.custom_percent_amount > 0 ? `<tr class="row-negative"><td>Percentage Deduction</td><td>${pct(advanced.custom_percent_deduction)} of gross</td><td>${pct(advanced.custom_percent_deduction)}</td><td>(${fmt(breakdown.custom_percent_amount)})</td></tr>` : ''}
           <tr class="row-total">
