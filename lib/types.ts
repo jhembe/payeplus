@@ -28,11 +28,14 @@ export interface SalaryBreakdown {
   nssf: number;
   taxable_income: number;
   paye: number;
+
+  heslb: number;
+
   total_deductions: number;
   net: number;
   effective_rate: number;
   marginal_rate: number;
-  // Advanced extras
+
   custom_fixed: number;
   custom_percent_amount: number;
   benefits: number;
@@ -57,11 +60,15 @@ export interface ReverseResult {
 // ─── Advanced Options ─────────────────────────────────────────────────────────
 
 export interface AdvancedOptions {
-  nssf_rate_override: number;           // percent (default 10)
-  custom_fixed_deduction: number;       // TZS amount
-  custom_percent_deduction: number;     // percent of gross
-  benefits: number;                     // non-cash benefits (taxable)
+export interface AdvancedOptions {
+  nssf_rate_override: number;
+  custom_fixed_deduction: number;
+  custom_percent_deduction: number;
+  benefits: number;
   include_benefits_in_nssf: boolean;
+
+  heslb_enabled: boolean;
+  heslb_rate: number; // percent, default 15
 }
 
 export const DEFAULT_ADVANCED: AdvancedOptions = {
@@ -70,8 +77,10 @@ export const DEFAULT_ADVANCED: AdvancedOptions = {
   custom_percent_deduction: 0,
   benefits: 0,
   include_benefits_in_nssf: true,
-};
 
+  heslb_enabled: false,
+  heslb_rate: 15,
+};
 // ─── Scenarios ────────────────────────────────────────────────────────────────
 
 export interface Scenario {
