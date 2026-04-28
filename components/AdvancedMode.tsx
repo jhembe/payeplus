@@ -246,6 +246,26 @@ export function AdvancedMode({ options, onChange }: AdvancedModeProps) {
           <p className="text-[11px] uppercase tracking-widest text-slate-600 font-semibold mb-4">
             Additional Deductions
           </p>
+          <ToggleField
+              label="HESLB Student Loan Repayment"
+              checked={options.heslb_enabled}
+              onChange={(v) => update('heslb_enabled', v)}
+              description="Higher Education Students' Loans Board (HESLB) repayments are deducted after tax."
+            />
+            
+            {options.heslb_enabled && (
+              <SliderField
+                label="HESLB Repayment Rate"
+                value={options.heslb_rate}
+                min={5}
+                max={25}
+                step={0.5}
+                unit="%"
+                tooltip="Standard HESLB repayment is 15% of gross salary. This does not reduce taxable income."
+                onChange={(v) => update('heslb_rate', v)}
+                accentColor="#2563EB"
+              />
+            )}
           <div className="space-y-4">
             <NumberField
               label="Fixed Deduction (TZS)"
