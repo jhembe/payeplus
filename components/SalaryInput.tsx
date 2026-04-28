@@ -143,7 +143,7 @@ export function SalaryInput({
         onClick={() => inputRef.current?.focus()}
       >
         {/* Currency badge */}
-        <span className="flex-shrink-0 text-xs font-bold px-2 py-1 rounded-md font-mono tracking-wider transition-colors duration-200 select-none bg-brand-500/15 text-brand-400">
+        <span className="flex-shrink-0 text-xs font-bold px-2 py-0.5 rounded-md font-mono tracking-wider transition-colors duration-200 select-none bg-brand-500/15 text-brand-400">
           {prefix}
         </span>
 
