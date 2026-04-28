@@ -67,9 +67,18 @@ export default function PayePlusApp() {
   const breakdown = useMemo(() => {
     if (!schema || gross === 0) {
       return {
-        gross: 0, nssf: 0, taxable_income: 0, paye: 0,
-        total_deductions: 0, net: 0, effective_rate: 0, marginal_rate: 0,
-        custom_fixed: 0, custom_percent_amount: 0, benefits: 0,
+        gross: 0,
+        nssf: 0,
+        taxable_income: 0,
+        paye: 0,
+        heslb: 0,                    // ✅ REQUIRED
+        total_deductions: 0,
+        net: 0,
+        effective_rate: 0,
+        marginal_rate: 0,
+        custom_fixed: 0,
+        custom_percent_amount: 0,
+        benefits: 0,
       };
     }
     return calculateBreakdown(gross, schema, advanced);
