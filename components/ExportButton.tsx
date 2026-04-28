@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Download, FileText, Printer, X, Check,
@@ -32,6 +33,19 @@ export function ExportButton({
   const [exported, setExported] = useState<'pdf' | 'html' | null>(null);
 
   const input = { breakdown, schema, advanced, currency, includeEmployer };
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
 
   const handleExport = (type: 'pdf' | 'html') => {
     if (type === 'pdf') {
@@ -84,18 +98,26 @@ export function ExportButton({
             />
 
             {/* Modal panel */}
+
+            {/* Modal panel wrapper */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              initial={{ opacity: 0, scale: 0.96, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              exit={{ opacity: 0, scale: 0.96, y: 12 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className={cn(
-                'fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
-                'w-[90vw] max-w-[420px]',
-                'card-glass border border-white/[0.1] rounded-2xl overflow-hidden',
-                'shadow-[0_24px_80px_rgba(0,0,0,0.7)]'
-              )}
+              className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"
             >
+
+            <div
+                className={cn(
+                  'w-full max-w-[420px]',
+                  'pointer-events-auto',
+                  'card-glass border border-white/[0.1] rounded-2xl overflow-hidden',
+                  'shadow-[0_24px_80px_rgba(0,0,0,0.7)]',
+                  'max-h-[90vh] overflow-y-auto'
+                )}
+              >
+
               {/* Modal header */}
               <div className="px-6 pt-6 pb-4 border-b border-white/[0.06]">
                 <div className="flex items-center justify-between">
@@ -224,6 +246,7 @@ export function ExportButton({
                   PDF: opens in new tab → Save as PDF via browser print dialog
                 </p>
               </div>
+            </div>
             </motion.div>
           </>
         )}
