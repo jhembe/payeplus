@@ -277,7 +277,7 @@ export function buildWaterfallData(breakdown: SalaryBreakdown): WaterfallEntry[]
       amount: heslb,
       fill: '#2563EB',
       type: 'negative',
-      tooltip: `HESLB Student Loan (${advanced?.heslb_rate ?? 15}%): ${fmtNum(heslb)}`,
+      tooltip: `HESLB Student Loan: ${fmtNum(heslb)}`,
     });
   }  
 
