@@ -80,10 +80,14 @@ export default function PayePlusApp() {
   // ─── Loading state ──────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div
-        className="relative" style={{ minHeight: "100dvh" }}
-        style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}
-      >
+        <div
+          className="relative"
+          style={{
+            minHeight: "100dvh",
+            background: 'var(--bg-base)',
+            color: 'var(--text-primary)',
+          }}
+        >
         <GradientBackground />
         <div className="relative z-10 max-w-5xl mx-auto px-4 py-16 space-y-4">
           <SkeletonCard className="h-16 w-72" />
@@ -102,10 +106,14 @@ export default function PayePlusApp() {
   // ─── Schema error (hard fail) ───────────────────────────────────────────────
   if (!schema) {
     return (
-      <div
-        className="flex items-center justify-center p-8" style={{ minHeight: "100dvh" }}
-        style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}
-      >
+        <div
+          className="flex items-center justify-center p-8"
+          style={{
+            minHeight: "100dvh",
+            background: 'var(--bg-base)',
+            color: 'var(--text-primary)',
+          }}
+        >
         <GradientBackground />
         <div className="relative z-10 card-glass max-w-sm w-full p-8 text-center space-y-4">
           <AlertTriangle size={32} className="mx-auto text-amber-400" />
@@ -129,10 +137,14 @@ export default function PayePlusApp() {
 
   // ─── Main render ────────────────────────────────────────────────────────────
   return (
-    <div
-      className="relative transition-colors duration-300" style={{ minHeight: "100dvh" }}
-      style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}
-    >
+      <div
+        className="relative transition-colors duration-300"
+        style={{
+          minHeight: "100dvh",
+          background: 'var(--bg-base)',
+          color: 'var(--text-primary)',
+        }}
+      >
       <GradientBackground />
 
       <div className="relative z-10 max-w-5xl mx-auto">
