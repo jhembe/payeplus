@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   payeplus:
     build:
@@ -22,9 +20,8 @@ services:
       retries: 3
       start_period: 15s
     networks:
-      - caddy_network
+      - edge_net
 
 networks:
-  caddy_network:
+  edge_net:
     external: true
-    name: caddy_network
