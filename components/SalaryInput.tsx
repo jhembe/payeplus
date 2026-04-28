@@ -132,10 +132,10 @@ export function SalaryInput({
         </label>
       )}
 
-      <motion.div
-        className={cn(
+      <motion.div     
+      className={cn(
           'relative flex items-center gap-3 px-4 sm:px-5 py-4 rounded-2xl cursor-text',
-          'border transition-all duration-300',
+          'border transition-all duration-300 overflow-hidden',
           'focus-within:border-brand-500 focus-within:shadow-[0_0_0_3px_rgba(99,102,241,0.15)]'
         )}
         style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-default)' }}
@@ -172,7 +172,13 @@ export function SalaryInput({
           autoCapitalize="none"
           spellCheck={false}
           aria-label={label || 'Salary amount'}
-          className="flex-1 bg-transparent outline-none text-right font-mono font-bold tabular-nums placeholder:text-slate-700"
+          className="
+            flex-1 min-w-0
+            bg-transparent outline-none
+            text-right truncate
+            font-mono font-bold tabular-nums
+            placeholder:text-slate-700
+          "
           style={{
             fontSize: 'max(16px, 1.75rem)',   // iOS zoom prevention
             color: 'var(--text-primary)',
