@@ -60,7 +60,6 @@ export interface ReverseResult {
 // ─── Advanced Options ─────────────────────────────────────────────────────────
 
 export interface AdvancedOptions {
-export interface AdvancedOptions {
   nssf_rate_override: number;
   custom_fixed_deduction: number;
   custom_percent_deduction: number;
