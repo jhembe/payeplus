@@ -134,7 +134,7 @@ export function SalaryInput({
 
       <motion.div     
       className={cn(
-          'relative flex items-center gap-3 px-4 sm:px-5 py-4 rounded-2xl cursor-text',
+          'relative flex items-center gap-3 px-4 sm:px-5 py-2.5 rounded-2xl cursor-text',
           'border transition-all duration-300 overflow-hidden',
           'focus-within:border-brand-500 focus-within:shadow-[0_0_0_3px_rgba(99,102,241,0.15)]'
         )}
@@ -179,11 +179,12 @@ export function SalaryInput({
             font-mono font-bold tabular-nums
             placeholder:text-slate-700
           "
-          style={{
-            fontSize: 'max(16px, 1.75rem)',   // iOS zoom prevention
-            color: 'var(--text-primary)',
-            WebkitAppearance: 'none',          // remove iOS default styling
-          }}
+        style={{
+          fontSize: '16px',        // modest size, still prevents iOS zoom
+          lineHeight: '1.4',
+          color: 'var(--text-primary)',
+          WebkitAppearance: 'none', // remove iOS default styling
+        }}
         />
       </motion.div>
 
