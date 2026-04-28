@@ -94,7 +94,7 @@ export function SalaryBreakdown({ breakdown, currency, usdRate }: SalaryBreakdow
           icon: <GraduationCap size={18} />,
           value: breakdown.heslb,
           description: 'Post-tax student loan repayment',
-          variant: 'info',
+          variant: 'info' as const,
         }])
       : []),
   
