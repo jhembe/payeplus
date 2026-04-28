@@ -209,7 +209,16 @@ export function calculateGrossFromNet(
  * The invisible bar creates the floating effect for each segment.
  */
 export function buildWaterfallData(breakdown: SalaryBreakdown): WaterfallEntry[] {
-  const { gross, nssf, paye, net, custom_fixed, custom_percent_amount, benefits } = breakdown;
+  const {
+    gross,
+    nssf,
+    paye,
+    heslb,
+    net,
+    custom_fixed,
+    custom_percent_amount,
+    benefits,
+  } = breakdown;
   const hasCustom = custom_fixed + custom_percent_amount > 0;
   const hasbenefits = benefits > 0;
 
@@ -261,6 +270,17 @@ export function buildWaterfallData(breakdown: SalaryBreakdown): WaterfallEntry[]
     tooltip: `PAYE Tax: ${fmtNum(paye)}`,
   });
 
+  if (heslb > 0) {
+    entries.push({
+      name: 'HESLB',
+      invisible: net + (hasCustom ? custom_fixed + custom_percent_amount : 0),
+      amount: heslb,
+      fill: '#2563EB',
+      type: 'negative',
+      tooltip: `HESLB Student Loan (${advanced?.heslb_rate ?? 15}%): ${fmtNum(heslb)}`,
+    });
+  }  
+
   if (hasCustom) {
     entries.push({
       name: 'Other',
@@ -288,13 +308,14 @@ export function buildWaterfallData(breakdown: SalaryBreakdown): WaterfallEntry[]
  * Builds pie/donut chart data for the deductions breakdown.
  */
 export function buildPieData(breakdown: SalaryBreakdown): PieEntry[] {
-  const { nssf, paye, net, custom_fixed, custom_percent_amount } = breakdown;
+  const { nssf, paye, heslb, net, custom_fixed, custom_percent_amount } = breakdown;
   const total = breakdown.gross + breakdown.benefits;
   if (total <= 0) return [];
 
   const entries: PieEntry[] = [
     { name: 'Net Pay', value: net, fill: '#10B981', percent: (net / total) * 100 },
-    { name: 'PAYE Tax', value: paye, fill: '#EF4444', percent: (paye / total) * 100 },
+    { name: 'PAYE Tax', value: paye, fill: '#EF4444', percent: (paye / total) * 100 }, 
+    { name: 'HESLB', value: heslb, fill: '#2563EB', percent: (heslb / total) * 100,},
     { name: 'NSSF', value: nssf, fill: '#F59E0B', percent: (nssf / total) * 100 },
   ];
 
