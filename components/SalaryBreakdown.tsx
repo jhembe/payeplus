@@ -88,14 +88,14 @@ export function SalaryBreakdown({ breakdown, currency, usdRate }: SalaryBreakdow
     },
   
     ...(breakdown.heslb > 0
-      ? [{
-          key: 'heslb',
+      ? ([{
+          key: 'heslb' as keyof SalaryBreakdownType,
           label: 'HESLB Loan',
           icon: <GraduationCap size={18} />,
           value: breakdown.heslb,
           description: 'Post-tax student loan repayment',
           variant: 'info',
-        }]
+        }])
       : []),
   
     {
