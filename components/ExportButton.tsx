@@ -51,9 +51,12 @@ export function ExportButton({
   const handleExport = async (type: 'pdf' | 'html') => {
     if (isExporting) return;
   
-    try {
-      setIsExporting(true);
+    setIsExporting(true);
   
+    // ✅ Allow React to paint the spinner
+    await new Promise(requestAnimationFrame);
+  
+    try {
       if (type === 'pdf') {
         await downloadPDF(input);
       } else {
