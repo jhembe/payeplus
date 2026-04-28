@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Download, FileText, Printer, X, Check,
+  Download, FileText, X, Check,
   Building2, ChevronDown,
 } from 'lucide-react';
-import { downloadReport, downloadHTMLFile } from '@/lib/reportGenerator';
+import { downloadPDF, downloadHTMLFile } from '@/lib/reportGenerator';
 import type {
   SalaryBreakdown, TaxSchema, AdvancedOptions, Currency,
 } from '@/lib/types';
@@ -47,9 +47,9 @@ export function ExportButton({
   }, [open]);
 
 
-  const handleExport = (type: 'pdf' | 'html') => {
+  const handleExport = async (type: 'pdf' | 'html') => {
     if (type === 'pdf') {
-      downloadReport(input);
+      await downloadPDF(input);
     } else {
       downloadHTMLFile(input);
     }
@@ -207,12 +207,12 @@ export function ExportButton({
                   {exported === 'pdf' ? (
                     <>
                       <Check size={16} />
-                      Opened for print!
+                      Downloaded!
                     </>
                   ) : (
                     <>
-                      <Printer size={16} />
-                      Open &amp; Print as PDF
+                      <FileText size={16} />
+                      Download PDF
                     </>
                   )}
                 </button>
@@ -243,7 +243,7 @@ export function ExportButton({
                 </button>
 
                 <p className="text-center text-[10px] text-slate-600">
-                  PDF: opens in new tab → Save as PDF via browser print dialog
+                  PDF is generated securely and downloaded directly to your device
                 </p>
               </div>
             </div>
