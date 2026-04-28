@@ -76,6 +76,9 @@ export function calculateBreakdown(
   // PAYE is on taxable income (gross + benefits - NSSF)
   const taxable_income = Math.max(0, grossWithBenefits - nssf);
   const paye = calculatePAYE(taxable_income, schema.paye_brackets);
+  const heslb = advanced.heslb_enabled
+  ? Math.round(grossWithBenefits * (advanced.heslb_rate / 100))
+  : 0;
 
   // Custom deductions
   const custom_fixed = Math.max(0, advanced.custom_fixed_deduction);
@@ -83,7 +86,7 @@ export function calculateBreakdown(
     Math.max(0, grossWithBenefits * (advanced.custom_percent_deduction / 100))
   );
 
-  const total_deductions = nssf + paye + custom_fixed + custom_percent_amount;
+  const total_deductions = nssf + paye + heslb + custom_fixed + custom_percent_amount;
   const net = Math.max(0, grossWithBenefits - total_deductions);
 
   const effective_rate = grossWithBenefits > 0
@@ -97,6 +100,7 @@ export function calculateBreakdown(
     nssf,
     taxable_income,
     paye,
+    heslb,
     total_deductions,
     net,
     effective_rate,
