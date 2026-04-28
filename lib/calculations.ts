@@ -72,6 +72,7 @@ if (gross <= 0) {
     custom_percent_amount: 0,
     benefits: 0,
   };
+} // ✅ THIS BRACE WAS MISSING
 
 
   const benefits = Math.max(0, advanced.benefits);
