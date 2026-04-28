@@ -467,7 +467,7 @@ export function generateReportHTML(input: ReportInput): string {
           ${breakdown.custom_percent_amount > 0 ? `<tr class="row-negative"><td>Percentage Deduction</td><td>${pct(advanced.custom_percent_deduction)} of gross</td><td>${pct(advanced.custom_percent_deduction)}</td><td>(${fmt(breakdown.custom_percent_amount)})</td></tr>` : ''}
           <tr class="row-total">
             <td><strong>Total Deductions</strong></td>
-            <td>NSSF + PAYE + Other</td>
+            <td>NSSF + PAYE + HESLB + Other</td>
             <td>${pct(breakdown.effective_rate)} effective</td>
             <td><strong>(${fmt(breakdown.total_deductions)})</strong></td>
           </tr>
