@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { TrendingDown, Wallet, Shield, Receipt, ArrowUpRight, Percent } from 'lucide-react';
+import { TrendingDown, Wallet, Shield, Receipt, ArrowUpRight, Percent, GraduationCap } from 'lucide-react';
 import { AnimatedNumber } from './AnimatedNumber';
 import { cn } from '@/lib/utils';
 import type { SalaryBreakdown as SalaryBreakdownType, Currency } from '@/lib/types';
@@ -86,13 +86,27 @@ export function SalaryBreakdown({ breakdown, currency, usdRate }: SalaryBreakdow
       description: `Marginal rate: ${formatPercent(breakdown.marginal_rate)}`,
       variant: 'danger',
     },
+  
+    ...(breakdown.heslb > 0
+      ? [{
+          key: 'heslb',
+          label: 'HESLB Loan',
+          icon: <GraduationCap size={18} />,
+          value: breakdown.heslb,
+          description: 'Post-tax student loan repayment',
+          variant: 'info',
+        }]
+      : []),
+  
     {
       key: 'nssf',
       label: 'NSSF Contribution',
       icon: <Shield size={18} />,
       value: breakdown.nssf,
       description: `${formatPercent(
-        breakdown.gross > 0 ? (breakdown.nssf / (breakdown.gross + breakdown.benefits)) * 100 : 0
+        breakdown.gross > 0
+          ? (breakdown.nssf / (breakdown.gross + breakdown.benefits)) * 100
+          : 0
       )} of gross`,
       variant: 'warning',
     },
