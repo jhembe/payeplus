@@ -49,15 +49,15 @@ export function Header({
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 h-13"
+      className="sticky top-0 z-20"
       style={{
-        height: '52px',
-        background: 'rgba(12,12,13,0.9)',
+        background: 'var(--header-bg)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
-        borderBottom: '1px solid var(--border-hair)',
+        borderBottom: '1px solid var(--border-subtle)',
       }}
     >
+      <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8" style={{ height: '52px' }}>
       {/* ── Wordmark ── */}
       <div className="flex items-center gap-2">
         {/* Icon mark */}
@@ -177,6 +177,7 @@ export function Header({
         >
           {theme === 'dark' ? <Sun size={12} /> : <Moon size={12} />}
         </button>
+      </div>
       </div>
     </motion.header>
   );

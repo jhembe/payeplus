@@ -70,15 +70,13 @@ export function SalaryBreakdown({ breakdown, currency, usdRate }: SalaryBreakdow
             />
           </div>
 
-          {/* Hero number — Instrument Serif italic */}
           <p
             className="relative leading-none mb-2"
             style={{
-              fontFamily: 'var(--font-serif)',
-              fontStyle: 'italic',
-              fontSize: 'clamp(26px, 5vw, 36px)',
-              fontWeight: 400,
-              letterSpacing: '-0.02em',
+              fontFamily: 'var(--font-mono)',
+              fontSize: 'clamp(24px, 4.5vw, 34px)',
+              fontWeight: 700,
+              letterSpacing: '-0.04em',
               color: 'var(--sage)',
             }}
           >

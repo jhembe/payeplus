@@ -77,11 +77,10 @@ export function EmployerCostView({ gross, schema, currency }: EmployerCostViewPr
         <p
           className="relative leading-none mb-3"
           style={{
-            fontFamily: 'var(--font-serif)',
-            fontStyle: 'italic',
-            fontSize: 'clamp(26px, 5vw, 34px)',
-            fontWeight: 400,
-            letterSpacing: '-0.02em',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 'clamp(24px, 4.5vw, 32px)',
+            fontWeight: 700,
+            letterSpacing: '-0.04em',
             color: 'var(--gold)',
           }}
         >

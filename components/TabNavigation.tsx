@@ -15,7 +15,7 @@ interface Tab {
   icon: React.ReactNode;
 }
 
-const TABS: Tab[] = [
+export const TABS: Tab[] = [
   { id: 'quick',    label: 'Quick',    shortLabel: 'Quick',    icon: <Calculator size={16} /> },
   { id: 'advanced', label: 'Advanced', shortLabel: 'Advanced', icon: <SlidersHorizontal size={16} /> },
   { id: 'compare',  label: 'Compare',  shortLabel: 'Compare',  icon: <GitCompare size={16} /> },
@@ -28,18 +28,124 @@ interface TabNavigationProps {
   onChange: (tab: AppTab) => void;
 }
 
+/* Horizontal tab bar — shown on sm screens, hidden on lg+ (replaced by sidebar) */
 export function TabNavigation({ active, onChange }: TabNavigationProps) {
   return (
-    <>
-      {/* ── Desktop tab bar ── */}
-      <div
-        className="hidden sm:flex items-stretch gap-0 overflow-x-auto no-scrollbar"
-        style={{
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-        role="tablist"
-        aria-label="Calculator modes"
-      >
+    <div
+      className="flex items-stretch gap-0 overflow-x-auto no-scrollbar lg:hidden"
+      style={{ borderBottom: '1px solid var(--border-subtle)' }}
+      role="tablist"
+      aria-label="Calculator modes"
+    >
+      {TABS.map((tab) => {
+        const isActive = tab.id === active;
+        return (
+          <button
+            key={tab.id}
+            role="tab"
+            aria-selected={isActive}
+            onClick={() => onChange(tab.id)}
+            className={cn(
+              'relative flex items-center gap-2 px-4 py-3 whitespace-nowrap flex-shrink-0',
+              'text-[13px] font-medium transition-colors duration-150',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50',
+              isActive ? '' : 'hover:text-zinc-300',
+            )}
+            style={{
+              fontFamily: 'var(--font-body)',
+              color: isActive ? 'var(--gold)' : 'var(--text-muted)',
+            }}
+          >
+            <span style={{ opacity: isActive ? 1 : 0.6 }}>{tab.icon}</span>
+            {tab.label}
+
+            {isActive && (
+              <motion.div
+                layoutId="tab-underline"
+                className="absolute bottom-0 left-0 right-0 h-[2px] rounded-t-full"
+                style={{ background: 'var(--gold)' }}
+                transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+              />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* Vertical sidebar nav — lg+ only */
+export function SidebarTabNav({ active, onChange }: TabNavigationProps) {
+  return (
+    <nav
+      className="flex flex-col gap-0.5 px-2 pt-4 pb-6"
+      role="tablist"
+      aria-label="Calculator modes"
+    >
+      {TABS.map((tab) => {
+        const isActive = tab.id === active;
+        return (
+          <button
+            key={tab.id}
+            role="tab"
+            aria-selected={isActive}
+            onClick={() => onChange(tab.id)}
+            className={cn(
+              'relative flex items-center gap-3 w-full px-3 py-2.5 rounded-lg',
+              'text-[13px] font-medium transition-all duration-150',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50',
+            )}
+            style={{
+              fontFamily: 'var(--font-body)',
+              color: isActive ? 'var(--gold)' : 'var(--text-muted)',
+              background: isActive ? 'var(--gold-ghost)' : 'transparent',
+            }}
+            onMouseEnter={(e) => {
+              if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-elevated)';
+            }}
+            onMouseLeave={(e) => {
+              if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+            }}
+          >
+            {isActive && (
+              <motion.div
+                layoutId="sidebar-active-bar"
+                className="absolute left-0 inset-y-2 w-[3px] rounded-full"
+                style={{ background: 'var(--gold)' }}
+                transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+              />
+            )}
+            <span
+              className="pl-1"
+              style={{ opacity: isActive ? 1 : 0.55 }}
+            >
+              {tab.icon}
+            </span>
+            {tab.label}
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+/* Fixed bottom nav — mobile only (< sm). Render this OUTSIDE any motion.div
+   to avoid CSS transform breaking position:fixed. */
+export function MobileTabNav({ active, onChange }: TabNavigationProps) {
+  return (
+    <nav
+      className="sm:hidden fixed bottom-0 inset-x-0 z-30"
+      style={{
+        background: 'var(--nav-bg)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        borderTop: '1px solid var(--border-subtle)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}
+      role="tablist"
+      aria-label="Calculator modes"
+    >
+      <div className="flex items-center justify-around h-14 px-1">
         {TABS.map((tab) => {
           const isActive = tab.id === active;
           return (
@@ -49,84 +155,33 @@ export function TabNavigation({ active, onChange }: TabNavigationProps) {
               aria-selected={isActive}
               onClick={() => onChange(tab.id)}
               className={cn(
-                'relative flex items-center gap-2 px-4 py-3 whitespace-nowrap flex-shrink-0',
-                'text-[13px] font-medium transition-colors duration-150',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50',
-                isActive
-                  ? 'text-gold'
-                  : 'text-zinc-500 hover:text-zinc-300',
+                'relative flex flex-col items-center justify-center gap-1 flex-1',
+                'min-h-[44px] rounded-xl py-1.5 mx-0.5',
+                'transition-all duration-200 focus:outline-none',
               )}
-              style={{ fontFamily: 'var(--font-body)' }}
+              style={{ color: isActive ? 'var(--gold)' : 'var(--text-muted)' }}
             >
-              <span className={cn('opacity-70', isActive && 'opacity-100')}>{tab.icon}</span>
-              {tab.label}
-
-              {/* Active underline */}
               {isActive && (
                 <motion.div
-                  layoutId="tab-underline"
-                  className="absolute bottom-0 left-0 right-0 h-[2px] rounded-t-full"
+                  layoutId="mobile-nav-dot"
+                  className="absolute top-1.5 inset-x-4 h-[2px] rounded-full"
                   style={{ background: 'var(--gold)' }}
                   transition={{ type: 'spring', stiffness: 500, damping: 38 }}
                 />
               )}
+              <span style={{ transform: isActive ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.2s' }}>
+                {tab.icon}
+              </span>
+              <span
+                className="text-[10px] font-semibold tracking-wide"
+                style={{ fontFamily: 'var(--font-body)', letterSpacing: '0.02em' }}
+              >
+                {tab.shortLabel}
+              </span>
             </button>
           );
         })}
       </div>
-
-      {/* ── Mobile bottom nav ── */}
-      <nav
-        className="sm:hidden fixed bottom-0 inset-x-0 z-30"
-        style={{
-          background: 'rgba(12,12,13,0.97)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderTop: '1px solid var(--border-subtle)',
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        }}
-        role="tablist"
-        aria-label="Calculator modes"
-      >
-        <div className="flex items-center justify-around h-14 px-1">
-          {TABS.map((tab) => {
-            const isActive = tab.id === active;
-            return (
-              <button
-                key={tab.id}
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => onChange(tab.id)}
-                className={cn(
-                  'relative flex flex-col items-center justify-center gap-1 flex-1',
-                  'min-h-[44px] rounded-xl py-1.5 mx-0.5',
-                  'transition-all duration-200 focus:outline-none',
-                  isActive ? 'text-gold' : 'text-zinc-600 hover:text-zinc-400',
-                )}
-              >
-                {/* Active dot above icon */}
-                {isActive && (
-                  <motion.div
-                    layoutId="mobile-nav-dot"
-                    className="absolute top-1.5 inset-x-4 h-[2px] rounded-full"
-                    style={{ background: 'var(--gold)' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 38 }}
-                  />
-                )}
-                <span className={cn('transition-transform duration-200', isActive ? 'scale-110' : 'scale-100')}>
-                  {tab.icon}
-                </span>
-                <span
-                  className="text-[10px] font-semibold tracking-wide"
-                  style={{ fontFamily: 'var(--font-body)', letterSpacing: '0.02em' }}
-                >
-                  {tab.shortLabel}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
-    </>
+    </nav>
   );
 }

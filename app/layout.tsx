@@ -43,7 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('payeplus__theme');var prefer=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';var theme=(t==='dark'||t==='light')?t:prefer;document.documentElement.classList.add(theme);if(theme==='light'){document.documentElement.style.setProperty('--bg-base','#FAFAF9');document.documentElement.style.setProperty('--bg-surface','#FFFFFF');document.documentElement.style.setProperty('--bg-elevated','#F4F4F5');document.documentElement.style.setProperty('--text-primary','#18181B');document.documentElement.style.setProperty('--gold','#D97706');}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('payeplus__theme');var prefer=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';var theme=(t==='dark'||t==='light')?t:prefer;document.documentElement.classList.add(theme);if(theme==='light'){document.documentElement.style.setProperty('--bg-base','#F6F6F4');document.documentElement.style.setProperty('--bg-surface','#FFFFFF');document.documentElement.style.setProperty('--bg-elevated','#EDEDEB');document.documentElement.style.setProperty('--text-primary','#18181B');document.documentElement.style.setProperty('--text-secondary','#27272A');document.documentElement.style.setProperty('--text-muted','#71717A');document.documentElement.style.setProperty('--gold','#D97706');document.documentElement.style.setProperty('--header-bg','rgba(246,246,244,0.92)');document.documentElement.style.setProperty('--nav-bg','rgba(255,255,255,0.97)');}}catch(e){}})();`,
           }}
         />
         <script

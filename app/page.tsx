@@ -6,7 +6,7 @@ import { AlertTriangle, RefreshCw, Zap, ChevronDown } from 'lucide-react';
 
 import { GradientBackground } from '@/components/GradientBackground';
 import { Header } from '@/components/Header';
-import { TabNavigation } from '@/components/TabNavigation';
+import { TabNavigation, SidebarTabNav, MobileTabNav } from '@/components/TabNavigation';
 import { SalaryInput } from '@/components/SalaryInput';
 import { SalaryBreakdown } from '@/components/SalaryBreakdown';
 import { WaterfallChart } from '@/components/WaterfallChart';
@@ -95,7 +95,6 @@ export default function PayePlusApp() {
   const [shareLabel, setShareLabel] = useState('');
   const shareLabelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Restore state from URL on first load
   useEffect(() => {
     const decoded = decodeShareURL();
     if (!decoded) return;
@@ -106,7 +105,6 @@ export default function PayePlusApp() {
     }
   }, []);
 
-  // Sync URL params whenever salary/advanced options change
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const url = encodeShareURL(gross, advanced);
@@ -180,13 +178,10 @@ export default function PayePlusApp() {
           }}
         >
           <AlertTriangle size={26} style={{ color: 'var(--gold)', margin: '0 auto' }} />
-          <h2
-            className="text-base font-bold"
-            style={{ fontFamily: 'var(--font-body)', color: 'var(--text-primary)' }}
-          >
+          <h2 className="text-base font-bold" style={{ fontFamily: 'var(--font-body)', color: 'var(--text-primary)' }}>
             Schema failed to load
           </h2>
-          <p className="text-sm" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-tertiary)', fontFamily: 'var(--font-body)' }}>
             {error || 'Could not fetch the tax schema. Check your connection.'}
           </p>
           <button
@@ -209,263 +204,263 @@ export default function PayePlusApp() {
     >
       <GradientBackground />
 
-      <div className="relative z-10 max-w-3xl mx-auto">
-        {/* ── Header ── */}
-        <Header
-          schemaVersion={schema.version}
-          schemaLastUpdated={schema.last_updated}
-          schemaSource={source}
-          currency={currency}
-          theme={theme}
-          onCurrencyToggle={toggleCurrency}
-          onThemeToggle={toggleTheme}
-          onSchemaRefresh={refresh}
-          onShare={gross > 0 ? handleShare : undefined}
-          shareLabel={shareLabel}
-        />
+      {/* ── Full-width sticky header ── */}
+      <Header
+        schemaVersion={schema.version}
+        schemaLastUpdated={schema.last_updated}
+        schemaSource={source}
+        currency={currency}
+        theme={theme}
+        onCurrencyToggle={toggleCurrency}
+        onThemeToggle={toggleTheme}
+        onSchemaRefresh={refresh}
+        onShare={gross > 0 ? handleShare : undefined}
+        shareLabel={shareLabel}
+      />
 
-        {/* ── Main content ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          className="px-3 sm:px-5 pb-nav sm:pb-8"
-        >
-          {/* Tab navigation */}
-          <div className="mb-4">
-            <TabNavigation active={activeTab} onChange={setActiveTab} />
-          </div>
+      {/* ── Content area ── */}
+      <div className="relative z-10">
+        <div className="max-w-6xl mx-auto lg:flex lg:items-start">
 
-          {/* ── Tab content ── */}
-          <AnimatePresence mode="wait">
+          {/* ── Desktop sidebar nav ── */}
+          <aside
+            className="hidden lg:flex flex-col w-52 shrink-0 sticky top-[52px]"
+            style={{
+              height: 'calc(100dvh - 52px)',
+              borderRight: '1px solid var(--border-subtle)',
+              overflowY: 'auto',
+            }}
+          >
+            <SidebarTabNav active={activeTab} onChange={setActiveTab} />
 
-            {/* Quick tab */}
-            {activeTab === 'quick' && (
-              <TabPanel id="quick">
-                <div className="space-y-2">
-                  {/* Input */}
-                  <div
-                    className="card p-4 sm:p-5"
-                    style={{ borderRadius: 'var(--radius-card)' }}
-                  >
-                    <SalaryInput value={gross} onChange={setGross} prefix={currency} autoFocus />
+            {/* Sidebar footer */}
+            <div className="mt-auto px-4 py-5 border-t" style={{ borderColor: 'var(--border-hair)' }}>
+              <p className="text-[10px] font-bold" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>
+                TRA {schema.year} rates
+              </p>
+              <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-ghost)', fontFamily: 'var(--font-body)' }}>
+                For reference only
+              </p>
+            </div>
+          </aside>
 
-                    <div className="mt-3 flex items-center justify-between">
-                      {/* Advanced toggle */}
-                      <button
-                        onClick={() => setShowAdvanced((v) => !v)}
-                        className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border transition-all duration-200"
-                        style={{
-                          borderColor: showAdvanced ? 'var(--gold)' : 'var(--border-subtle)',
-                          background: showAdvanced ? 'var(--gold-ghost)' : 'transparent',
-                          color: showAdvanced ? 'var(--gold)' : 'var(--text-muted)',
-                          fontFamily: 'var(--font-body)',
-                        }}
-                      >
-                        <Zap size={10} />
-                        {showAdvanced ? 'Hide options' : 'Advanced options'}
-                        <ChevronDown
-                          size={10}
-                          className="transition-transform duration-200"
-                          style={{ transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                        />
-                      </button>
+          {/* ── Main content ── */}
+          <main className="flex-1 min-w-0">
+            {/* Horizontal tab bar — sm to lg */}
+            <div className="px-3 sm:px-5 pt-3 sm:pt-4">
+              <TabNavigation active={activeTab} onChange={setActiveTab} />
+            </div>
 
-                      {gross > 0 && (
-                        <ExportButton
-                          breakdown={breakdown}
-                          schema={schema}
-                          advanced={advanced}
-                          currency={currency}
-                          compact
-                        />
+            {/* Animated tab content */}
+            <div className="px-3 sm:px-5 lg:px-6 pb-nav sm:pb-8 lg:pb-10 pt-3">
+              <AnimatePresence mode="wait">
+
+                {/* Quick tab */}
+                {activeTab === 'quick' && (
+                  <TabPanel id="quick">
+                    <div className="space-y-2">
+                      <div className="card p-4 sm:p-5" style={{ borderRadius: 'var(--radius-card)' }}>
+                        <SalaryInput value={gross} onChange={setGross} prefix={currency} autoFocus />
+
+                        <div className="mt-3 flex items-center justify-between">
+                          <button
+                            onClick={() => setShowAdvanced((v) => !v)}
+                            className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border transition-all duration-200"
+                            style={{
+                              borderColor: showAdvanced ? 'var(--gold)' : 'var(--border-subtle)',
+                              background: showAdvanced ? 'var(--gold-ghost)' : 'transparent',
+                              color: showAdvanced ? 'var(--gold)' : 'var(--text-muted)',
+                              fontFamily: 'var(--font-body)',
+                            }}
+                          >
+                            <Zap size={10} />
+                            {showAdvanced ? 'Hide options' : 'Advanced options'}
+                            <ChevronDown
+                              size={10}
+                              className="transition-transform duration-200"
+                              style={{ transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                            />
+                          </button>
+
+                          {gross > 0 && (
+                            <ExportButton
+                              breakdown={breakdown}
+                              schema={schema}
+                              advanced={advanced}
+                              currency={currency}
+                              compact
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      <AnimatePresence>
+                        {showAdvanced && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                            className="overflow-hidden"
+                          >
+                            <AdvancedMode options={advanced} onChange={setAdvanced} />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      <AnimatePresence>
+                        {breakdown.gross > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="space-y-2"
+                          >
+                            <SalaryBreakdown breakdown={breakdown} currency={currency} usdRate={usdRate} />
+                            <div className="grid grid-cols-1 lg:grid-cols-5 gap-2">
+                              <div className="lg:col-span-3">
+                                <WaterfallChart breakdown={breakdown} />
+                              </div>
+                              <div className="lg:col-span-2">
+                                <DeductionPieChart breakdown={breakdown} currency={currency} usdRate={usdRate} />
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {breakdown.gross === 0 && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="card p-10 sm:p-14 text-center"
+                          style={{ borderRadius: 'var(--radius-card)' }}
+                        >
+                          <div
+                            className="inline-flex items-center justify-center h-14 w-14 rounded-2xl mb-5"
+                            style={{ background: 'var(--gold-ghost)', border: '1px solid var(--border-subtle)' }}
+                          >
+                            <span
+                              style={{
+                                fontFamily: 'var(--font-mono)',
+                                fontSize: '14px',
+                                fontWeight: 700,
+                                letterSpacing: '-0.03em',
+                                color: 'var(--gold)',
+                              }}
+                            >
+                              TZS
+                            </span>
+                          </div>
+                          <p
+                            className="text-[15px] font-semibold mb-1.5"
+                            style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-body)' }}
+                          >
+                            Enter your salary to begin
+                          </p>
+                          <p
+                            className="text-xs max-w-xs mx-auto"
+                            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+                          >
+                            PAYE, NSSF, net pay and full breakdown — computed instantly.
+                            Nothing leaves your browser.
+                          </p>
+                        </motion.div>
                       )}
                     </div>
-                  </div>
+                  </TabPanel>
+                )}
 
-                  {/* Advanced panel */}
-                  <AnimatePresence>
-                    {showAdvanced && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                        className="overflow-hidden"
-                      >
-                        <AdvancedMode options={advanced} onChange={setAdvanced} />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Results */}
-                  <AnimatePresence>
-                    {breakdown.gross > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="space-y-2"
-                      >
-                        <SalaryBreakdown breakdown={breakdown} currency={currency} usdRate={usdRate} />
-                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-2">
-                          <div className="lg:col-span-3">
-                            <WaterfallChart breakdown={breakdown} />
-                          </div>
-                          <div className="lg:col-span-2">
-                            <DeductionPieChart breakdown={breakdown} currency={currency} usdRate={usdRate} />
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Empty state */}
-                  {breakdown.gross === 0 && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="card p-10 sm:p-14 text-center"
-                      style={{ borderRadius: 'var(--radius-card)' }}
-                    >
-                      <div
-                        className="inline-flex items-center justify-center h-14 w-14 rounded-2xl mb-5"
-                        style={{ background: 'var(--gold-ghost)', border: '1px solid var(--border-subtle)' }}
-                      >
-                        <span
-                          style={{
-                            fontFamily: 'var(--font-serif)',
-                            fontStyle: 'italic',
-                            fontSize: '24px',
-                            color: 'var(--gold)',
-                            opacity: 0.8,
-                          }}
+                {/* Advanced tab */}
+                {activeTab === 'advanced' && (
+                  <TabPanel id="advanced">
+                    <div className="space-y-2">
+                      <div className="card p-4 sm:p-5" style={{ borderRadius: 'var(--radius-card)' }}>
+                        <SalaryInput value={gross} onChange={setGross} prefix={currency} />
+                      </div>
+                      <AdvancedMode options={advanced} onChange={setAdvanced} />
+                      {breakdown.gross > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="space-y-2"
                         >
-                          TZS
-                        </span>
-                      </div>
-                      <p
-                        className="text-[15px] font-semibold mb-1.5"
-                        style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-body)' }}
-                      >
-                        Enter your salary to begin
-                      </p>
-                      <p
-                        className="text-xs max-w-xs mx-auto"
-                        style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
-                      >
-                        PAYE, NSSF, net pay and full breakdown — computed instantly.
-                        Nothing leaves your browser.
-                      </p>
-                    </motion.div>
-                  )}
-                </div>
-              </TabPanel>
-            )}
-
-            {/* Advanced tab */}
-            {activeTab === 'advanced' && (
-              <TabPanel id="advanced">
-                <div className="space-y-2">
-                  <div
-                    className="card p-4 sm:p-5"
-                    style={{ borderRadius: 'var(--radius-card)' }}
-                  >
-                    <SalaryInput value={gross} onChange={setGross} prefix={currency} />
-                  </div>
-                  <AdvancedMode options={advanced} onChange={setAdvanced} />
-                  {breakdown.gross > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="space-y-2"
-                    >
-                      <SalaryBreakdown breakdown={breakdown} currency={currency} usdRate={usdRate} />
-                      <div className="grid grid-cols-1 lg:grid-cols-5 gap-2">
-                        <div className="lg:col-span-3">
-                          <WaterfallChart breakdown={breakdown} />
-                        </div>
-                        <div className="lg:col-span-2">
-                          <DeductionPieChart breakdown={breakdown} currency={currency} usdRate={usdRate} />
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </div>
-              </TabPanel>
-            )}
-
-            {/* Compare tab */}
-            {activeTab === 'compare' && (
-              <TabPanel id="compare">
-                <ScenarioComparison
-                  schema={schema}
-                  currency={currency}
-                  currentGross={gross}
-                  currentAdvanced={advanced}
-                />
-              </TabPanel>
-            )}
-
-            {/* Reverse tab */}
-            {activeTab === 'reverse' && (
-              <TabPanel id="reverse">
-                <ReverseCalculator schema={schema} currency={currency} advanced={advanced} />
-              </TabPanel>
-            )}
-
-            {/* Employer tab */}
-            {activeTab === 'employer' && (
-              <TabPanel id="employer">
-                <div className="space-y-2">
-                  <div
-                    className="card p-4 sm:p-5"
-                    style={{ borderRadius: 'var(--radius-card)' }}
-                  >
-                    <SalaryInput value={gross} onChange={setGross} prefix={currency} />
-                  </div>
-                  {gross > 0 ? (
-                    <EmployerCostView gross={gross} schema={schema} currency={currency} />
-                  ) : (
-                    <div
-                      className="card p-10 text-center"
-                      style={{ borderRadius: 'var(--radius-card)' }}
-                    >
-                      <p
-                        className="text-sm"
-                        style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
-                      >
-                        Enter an employee gross salary above to calculate the full employer cost.
-                      </p>
+                          <SalaryBreakdown breakdown={breakdown} currency={currency} usdRate={usdRate} />
+                          <div className="grid grid-cols-1 lg:grid-cols-5 gap-2">
+                            <div className="lg:col-span-3">
+                              <WaterfallChart breakdown={breakdown} />
+                            </div>
+                            <div className="lg:col-span-2">
+                              <DeductionPieChart breakdown={breakdown} currency={currency} usdRate={usdRate} />
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </TabPanel>
-            )}
+                  </TabPanel>
+                )}
 
-          </AnimatePresence>
-        </motion.div>
+                {/* Compare tab */}
+                {activeTab === 'compare' && (
+                  <TabPanel id="compare">
+                    <ScenarioComparison
+                      schema={schema}
+                      currency={currency}
+                      currentGross={gross}
+                      currentAdvanced={advanced}
+                    />
+                  </TabPanel>
+                )}
 
-        {/* ── Footer ── */}
-        <footer
-          className="hidden sm:flex px-5 py-4 items-center justify-between gap-3"
-          style={{ borderTop: '1px solid var(--border-hair)' }}
-        >
-          <p
-            className="text-[11px]"
-            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
-          >
-            <span style={{ color: 'var(--text-tertiary)', fontWeight: 700 }}>PAYE+</span>
-            {' '}· Tanzania Tax Intelligence · Schema v{schema.version}
-          </p>
-          <p
-            className="text-[11px]"
-            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
-          >
-            TRA {schema.year} rates · For reference only
-          </p>
-        </footer>
+                {/* Reverse tab */}
+                {activeTab === 'reverse' && (
+                  <TabPanel id="reverse">
+                    <ReverseCalculator schema={schema} currency={currency} advanced={advanced} />
+                  </TabPanel>
+                )}
+
+                {/* Employer tab */}
+                {activeTab === 'employer' && (
+                  <TabPanel id="employer">
+                    <div className="space-y-2">
+                      <div className="card p-4 sm:p-5" style={{ borderRadius: 'var(--radius-card)' }}>
+                        <SalaryInput value={gross} onChange={setGross} prefix={currency} />
+                      </div>
+                      {gross > 0 ? (
+                        <EmployerCostView gross={gross} schema={schema} currency={currency} />
+                      ) : (
+                        <div className="card p-10 text-center" style={{ borderRadius: 'var(--radius-card)' }}>
+                          <p className="text-sm" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>
+                            Enter an employee gross salary above to calculate the full employer cost.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </TabPanel>
+                )}
+
+              </AnimatePresence>
+            </div>
+
+            {/* Desktop footer */}
+            <footer
+              className="hidden sm:flex px-5 lg:px-6 py-4 items-center justify-between gap-3"
+              style={{ borderTop: '1px solid var(--border-hair)' }}
+            >
+              <p className="text-[11px]" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>
+                <span style={{ color: 'var(--text-tertiary)', fontWeight: 700 }}>PAYE+</span>
+                {' '}· Tanzania Tax Intelligence · Schema v{schema.version}
+              </p>
+              <p className="text-[11px]" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>
+                TRA {schema.year} rates · For reference only
+              </p>
+            </footer>
+          </main>
+        </div>
       </div>
+
+      {/* ── Mobile bottom nav — rendered OUTSIDE motion.div so CSS transform doesn't break position:fixed ── */}
+      <MobileTabNav active={activeTab} onChange={setActiveTab} />
     </div>
   );
 }
