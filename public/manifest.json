@@ -1,0 +1,30 @@
+{
+  "name": "PAYE+ Tanzania Tax Intelligence",
+  "short_name": "PAYE+",
+  "description": "Fintech-grade salary & tax calculator for Tanzania. Compute PAYE, NSSF, net pay, and employer costs — works offline.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#080B14",
+  "theme_color": "#6366F1",
+  "lang": "en",
+  "categories": ["finance", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Quick Calculator",
+      "short_name": "Quick Calc",
+      "description": "Open the salary calculator",
+      "url": "/"
+    }
+  ]
+}

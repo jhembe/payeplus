@@ -2,12 +2,10 @@
 
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Users, TrendingUp, AlertCircle } from 'lucide-react';
+import { AlertCircle, TrendingUp } from 'lucide-react';
 import { AnimatedNumber } from './AnimatedNumber';
-import { calculateEmployerCost, formatTZS, formatPercent } from '@/lib/calculations';
+import { calculateEmployerCost, formatPercent, formatCurrency } from '@/lib/calculations';
 import type { TaxSchema, Currency } from '@/lib/types';
-import { formatCurrency } from '@/lib/calculations';
-import { cn } from '@/lib/utils';
 
 interface EmployerCostViewProps {
   gross: number;
@@ -17,126 +15,172 @@ interface EmployerCostViewProps {
 
 export function EmployerCostView({ gross, schema, currency }: EmployerCostViewProps) {
   const cost = useMemo(() => calculateEmployerCost(gross, schema), [gross, schema]);
-
   const fmt = (n: number) => formatCurrency(n, currency, schema.usd_rate);
 
   const lineItems = [
     {
       label: 'Gross Salary',
+      sublabel: 'Agreed remuneration',
       value: cost.gross,
-      description: 'Agreed remuneration',
-      color: 'text-brand-400',
-      bg: 'bg-brand-500/10',
+      accent: 'var(--gold)',
       positive: true,
     },
     {
-      label: 'Employer NSSF (10%)',
+      label: 'Employer NSSF',
+      sublabel: '10% of gross',
       value: cost.employer_nssf,
-      description: 'Employer social security contribution',
-      color: 'text-amber-400',
-      bg: 'bg-amber-500/10',
+      accent: 'var(--sky)',
       positive: false,
     },
     {
-      label: 'Skills & Development Levy (4.5%)',
+      label: 'Skills & Development Levy',
+      sublabel: '4.5% of gross',
       value: cost.sdl,
-      description: 'SDL — paid to TRA monthly',
-      color: 'text-orange-400',
-      bg: 'bg-orange-500/10',
+      accent: 'var(--rose)',
       positive: false,
     },
     {
-      label: "Workers' Compensation Fund (0.5%)",
+      label: "Workers' Compensation Fund",
+      sublabel: '0.5% of gross',
       value: cost.wcf,
-      description: 'WCF — mandatory insurance levy',
-      color: 'text-red-400',
-      bg: 'bg-red-500/10',
+      accent: 'var(--rose)',
       positive: false,
     },
   ];
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="space-y-5"
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="space-y-2"
     >
-      {/* Header card */}
-      <div className="card-glass p-5">
-        <div className="flex items-start gap-3 mb-5">
-          <div className="p-2 rounded-xl bg-brand-500/15 text-brand-400 flex-shrink-0">
-            <Building2 size={18} />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-slate-200">Employer Cost View</h3>
-            <p className="text-xs text-slate-500 mt-1">
-              The total cost of employment to the organisation — gross salary plus statutory
-              employer-side levies (NSSF, SDL, WCF) mandated by Tanzanian labour law.
-            </p>
-          </div>
-        </div>
+      {/* Hero cost card */}
+      <div
+        className="card-gold p-5 sm:p-6 relative overflow-hidden"
+        style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-card)',
+        }}
+      >
+        <div
+          className="absolute inset-0 pointer-events-none rounded-[inherit]"
+          style={{ background: 'linear-gradient(135deg, var(--gold-ghost) 0%, transparent 50%)' }}
+        />
+        <p
+          className="relative text-[10px] font-bold uppercase tracking-widest mb-3"
+          style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+        >
+          Total Monthly Employer Cost
+        </p>
+        <p
+          className="relative leading-none mb-3"
+          style={{
+            fontFamily: 'var(--font-serif)',
+            fontStyle: 'italic',
+            fontSize: 'clamp(26px, 5vw, 34px)',
+            fontWeight: 400,
+            letterSpacing: '-0.02em',
+            color: 'var(--gold)',
+          }}
+        >
+          <AnimatedNumber value={cost.total_employer_cost} formatter={fmt} duration={600} />
+        </p>
 
-        {/* Big number */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
-          <div>
-            <p className="text-xs text-slate-600 uppercase tracking-widest font-semibold mb-1">
-              Total Monthly Employer Cost
-            </p>
-            <p
-              className="text-4xl sm:text-5xl font-mono font-bold gradient-text"
-              style={{ fontFamily: "'DM Mono', monospace" }}
+        <div className="relative flex items-center gap-3 flex-wrap">
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
+            style={{
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border-subtle)',
+            }}
+          >
+            <TrendingUp size={11} style={{ color: 'var(--sage)' }} />
+            <span
+              className="text-[12px] font-bold tabular-nums"
+              style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}
             >
-              <AnimatedNumber
-                value={cost.total_employer_cost}
-                formatter={fmt}
-                duration={600}
-              />
-            </p>
+              {cost.cost_multiplier.toFixed(4)}×
+            </span>
+            <span
+              className="text-[11px]"
+              style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+            >
+              of gross
+            </span>
           </div>
-          <div className="pb-1">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/[0.07]">
-              <TrendingUp size={13} className="text-emerald-400" />
-              <span className="text-xs font-mono font-semibold text-slate-300">
-                {cost.cost_multiplier.toFixed(4)}×
-              </span>
-              <span className="text-xs text-slate-600">of gross</span>
-            </div>
-          </div>
+          <p
+            className="text-[11px]"
+            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+          >
+            {formatPercent((cost.total_employer_cost / cost.gross - 1) * 100, 2)} above gross salary
+          </p>
         </div>
       </div>
 
       {/* Line items */}
-      <div className="card-glass overflow-hidden">
-        <div className="px-5 pt-5 pb-3 border-b border-white/[0.05]">
-          <p className="text-xs font-semibold uppercase tracking-widest text-slate-600">
+      <div
+        className="card overflow-hidden"
+        style={{ borderRadius: 'var(--radius-card)' }}
+      >
+        <div
+          className="px-4 pt-4 pb-3"
+          style={{ borderBottom: '1px solid var(--border-hair)' }}
+        >
+          <p
+            className="text-[10px] font-bold uppercase tracking-widest"
+            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+          >
             Cost Breakdown
           </p>
         </div>
 
-        <div className="divide-y divide-white/[0.04]">
+        <div
+          className="divide-y"
+          style={{ borderColor: 'var(--border-hair)' }}
+        >
           {lineItems.map((item, i) => (
             <motion.div
               key={item.label}
-              initial={{ opacity: 0, x: -8 }}
+              initial={{ opacity: 0, x: -4 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 + i * 0.07, duration: 0.35 }}
-              className="px-5 py-4 flex items-center justify-between gap-4"
+              transition={{ delay: 0.06 + i * 0.05, duration: 0.3 }}
+              className="px-4 py-3.5 flex items-center justify-between gap-4"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className={cn('w-1 h-8 rounded-full flex-shrink-0', item.bg)} />
+                <div
+                  className="w-0.5 h-6 rounded-full flex-shrink-0"
+                  style={{ background: item.accent, opacity: 0.7 }}
+                />
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-300 truncate">{item.label}</p>
-                  <p className="text-xs text-slate-600">{item.description}</p>
+                  <p
+                    className="text-[13px] font-medium truncate"
+                    style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-body)' }}
+                  >
+                    {item.label}
+                  </p>
+                  <p
+                    className="text-[11px]"
+                    style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+                  >
+                    {item.sublabel}
+                  </p>
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
-                <p className={cn('font-mono font-bold text-sm tabular-nums', item.color)}>
+                <p
+                  className="font-bold text-[13px] tabular-nums"
+                  style={{ fontFamily: 'var(--font-mono)', color: item.accent }}
+                >
                   {item.positive ? '' : '+ '}
-                  <AnimatedNumber value={item.value} formatter={fmt} duration={500} />
+                  <AnimatedNumber value={item.value} formatter={fmt} duration={450} />
                 </p>
                 {!item.positive && item.value > 0 && (
-                  <p className="text-[10px] text-slate-600 font-mono mt-0.5">
+                  <p
+                    className="text-[10px] mt-0.5"
+                    style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+                  >
                     {formatPercent((item.value / cost.gross) * 100, 1)} of gross
                   </p>
                 )}
@@ -145,37 +189,56 @@ export function EmployerCostView({ gross, schema, currency }: EmployerCostViewPr
           ))}
 
           {/* Total row */}
-          <div className="px-5 py-4 flex items-center justify-between bg-brand-500/5">
+          <div
+            className="px-4 py-3.5 flex items-center justify-between"
+            style={{ background: 'var(--gold-ghost)' }}
+          >
             <div className="flex items-center gap-3">
-              <div className="w-1 h-8 rounded-full bg-brand-500/40" />
+              <div
+                className="w-0.5 h-6 rounded-full"
+                style={{ background: 'var(--gold)' }}
+              />
               <div>
-                <p className="text-sm font-semibold text-slate-200">Total Employer Cost</p>
-                <p className="text-xs text-slate-600">Monthly obligation to employer</p>
+                <p
+                  className="text-[13px] font-semibold"
+                  style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-body)' }}
+                >
+                  Total Employer Cost
+                </p>
+                <p
+                  className="text-[11px]"
+                  style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+                >
+                  Monthly obligation
+                </p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="font-mono font-bold text-base gradient-text-brand tabular-nums">
-                <AnimatedNumber
-                  value={cost.total_employer_cost}
-                  formatter={fmt}
-                  duration={600}
-                />
-              </p>
-              <p className="text-[10px] text-slate-600 font-mono mt-0.5">
-                {formatPercent((cost.total_employer_cost / cost.gross - 1) * 100, 2)} above gross
-              </p>
-            </div>
+            <p
+              className="font-bold text-[14px] tabular-nums"
+              style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold)' }}
+            >
+              <AnimatedNumber value={cost.total_employer_cost} formatter={fmt} duration={600} />
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Notice */}
-      <div className="card-glass p-4 flex items-start gap-3">
-        <AlertCircle size={15} className="text-amber-400/70 flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-slate-500 leading-relaxed">
-          SDL (Skills &amp; Development Levy) is applicable to employers with 4+ employees paying
-          a gross monthly payroll ≥ TZS 200,000. WCF rates may vary by industry sector. Always
-          verify current rates with TRA and WCF Board of Tanzania.
+      {/* Disclaimer */}
+      <div
+        className="card flex items-start gap-3 p-4"
+        style={{ borderRadius: 'var(--radius-card)' }}
+      >
+        <AlertCircle
+          size={12}
+          className="flex-shrink-0 mt-0.5"
+          style={{ color: 'var(--gold)', opacity: 0.5 }}
+        />
+        <p
+          className="text-[11px] leading-relaxed"
+          style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+        >
+          SDL applies to employers with 4+ staff paying gross payroll ≥ TZS 200,000/mo.
+          WCF rates vary by industry. Verify current rates with TRA and WCF Board of Tanzania.
         </p>
       </div>
     </motion.div>

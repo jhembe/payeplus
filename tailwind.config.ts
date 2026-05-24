@@ -11,87 +11,83 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Obsidian scale — the backbone of PAYE+'s dark palette
-        obsidian: {
-          950: '#04050A',
-          900: '#080B14',
-          800: '#0E1019',
-          700: '#13172A',
-          600: '#1B2035',
-          500: '#242B42',
+        // Zinc scale — warm near-black
+        zinc: {
+          950: '#09090B',
+          900: '#18181B',
+          800: '#27272A',
+          700: '#3F3F46',
+          600: '#52525B',
+          500: '#71717A',
+          400: '#A1A1AA',
+          300: '#D4D4D8',
+          200: '#E4E4E7',
+          100: '#F4F4F5',
+          50:  '#FAFAFA',
         },
-        // Brand accent — electric indigo
-        brand: {
-          50: '#EEF2FF',
-          100: '#E0E7FF',
-          400: '#818CF8',
-          500: '#6366F1',
-          600: '#4F46E5',
-          700: '#4338CA',
-        },
-        // Teal complement
-        teal: {
-          400: '#2DD4BF',
-          500: '#14B8A6',
-          600: '#0D9488',
-        },
-        // Cyan highlight
-        'electric': {
-          400: '#22D3EE',
-          500: '#06B6D4',
+        // Gold/Amber — primary brand accent
+        gold: {
+          50:  '#FFFBEB',
+          100: '#FEF3C7',
+          200: '#FDE68A',
+          300: '#FCD34D',
+          400: '#FBBF24',
+          500: '#F59E0B',
+          600: '#D97706',
+          700: '#B45309',
+          800: '#92400E',
+          900: '#78350F',
         },
         // Semantic
-        success: '#10B981',
-        warning: '#F59E0B',
-        danger: '#EF4444',
+        sage: {
+          400: '#4ADE80',
+          500: '#22C55E',
+          600: '#16A34A',
+        },
+        rose: {
+          400: '#FB7185',
+          500: '#F43F5E',
+          600: '#E11D48',
+        },
+        sky: {
+          400: '#38BDF8',
+          500: '#0EA5E9',
+          600: '#0284C7',
+        },
+        violet: {
+          400: '#A78BFA',
+          500: '#8B5CF6',
+        },
+        // Legacy aliases for backwards compat
+        brand: {
+          400: '#FBBF24',
+          500: '#F59E0B',
+          600: '#D97706',
+        },
       },
       fontFamily: {
-        display: ['var(--font-syne)', 'sans-serif'],
-        body: ['var(--font-outfit)', 'sans-serif'],
-        mono: ['var(--font-geist-mono)', 'monospace'],
+        serif:   ['var(--font-serif)', 'Georgia', 'serif'],
+        body:    ['var(--font-body)', 'system-ui', 'sans-serif'],
+        mono:    ['var(--font-mono)', 'monospace'],
+        display: ['var(--font-body)', 'system-ui', 'sans-serif'],
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-brand': 'linear-gradient(135deg, #6366F1 0%, #06B6D4 100%)',
-        'gradient-brand-subtle': 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(6,182,212,0.15) 100%)',
+        'gradient-brand': 'linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%)',
+        'gradient-brand-subtle': 'linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(245,158,11,0.06) 100%)',
       },
       boxShadow: {
-        'brand-sm': '0 0 15px rgba(99,102,241,0.15)',
-        'brand-md': '0 0 30px rgba(99,102,241,0.2)',
-        'brand-lg': '0 0 60px rgba(99,102,241,0.25)',
-        'teal-sm': '0 0 15px rgba(20,184,166,0.15)',
-        'card': '0 4px 24px rgba(0,0,0,0.4)',
+        'gold-sm':  '0 0 16px rgba(245,158,11,0.14)',
+        'gold-md':  '0 0 32px rgba(245,158,11,0.18)',
+        'gold-lg':  '0 0 64px rgba(245,158,11,0.22)',
+        'card':     '0 1px 0 rgba(255,255,255,0.04) inset, 0 2px 8px rgba(0,0,0,0.55), 0 8px 32px rgba(0,0,0,0.3)',
+        'card-lg':  '0 1px 0 rgba(255,255,255,0.06) inset, 0 4px 16px rgba(0,0,0,0.65), 0 16px 48px rgba(0,0,0,0.4)',
       },
       animation: {
-        'float': 'float 12s ease-in-out infinite',
-        'float-slow': 'float 18s ease-in-out infinite 4s',
-        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
         'slide-up': 'slideUp 0.4s cubic-bezier(0.16,1,0.3,1)',
-        'fade-in': 'fadeIn 0.3s ease-out',
-        'shimmer': 'shimmer 2s linear infinite',
-      },
-      keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
-          '33%': { transform: 'translate(30px, -30px) scale(1.05)' },
-          '66%': { transform: 'translate(-20px, 20px) scale(0.97)' },
-        },
-        pulseGlow: {
-          '0%, 100%': { opacity: '0.35' },
-          '50%': { opacity: '0.6' },
-        },
-        slideUp: {
-          '0%': { opacity: '0', transform: 'translateY(16px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
-        shimmer: {
-          '0%': { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
-        },
+        'fade-in':  'fadeIn 0.3s ease-out',
+        'shimmer':  'shimmer 2s linear infinite',
+        'glow':     'glow-pulse 3s ease-in-out infinite',
       },
       borderRadius: {
         '2xl': '1rem',

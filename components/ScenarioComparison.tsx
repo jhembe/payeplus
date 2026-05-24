@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, GitCompare, TrendingUp, TrendingDown } from 'lucide-react';
 import { calculateBreakdown, formatTZS, formatPercent } from '@/lib/calculations';
 import type { TaxSchema, Scenario, AdvancedOptions, Currency } from '@/lib/types';
-import { DEFAULT_ADVANCED } from '@/lib/types';
 import { SalaryInput } from './SalaryInput';
 import { cn } from '@/lib/utils';
 
@@ -16,120 +15,98 @@ interface ScenarioComparisonProps {
   currentAdvanced: AdvancedOptions;
 }
 
-const SCENARIO_COLORS = [
-  '#6366F1', '#06B6D4', '#10B981', '#F59E0B',
-  '#EC4899', '#8B5CF6', '#F97316', '#14B8A6',
-];
+const COLORS = ['#F59E0B','#38BDF8','#4ADE80','#FB7185','#A78BFA','#FCD34D','#34D399','#60A5FA'];
+const NAMES  = ['Current Role','Offer A','Offer B','Senior','Director','Freelance','Consulting','Remote'];
 
-const SCENARIO_NAMES = [
-  'Current Role', 'Offer A', 'Offer B', 'Senior',
-  'Director', 'Freelance', 'Consulting', 'Remote',
-];
-
-/** iOS-safe UUID: crypto.randomUUID() available from iOS 15.4+; fallback for older */
 function generateId(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-  // Fallback: Math.random-based UUID v4
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
+    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
   });
 }
 
-export function ScenarioComparison({
-  schema,
-  currency,
-  currentGross,
-  currentAdvanced,
-}: ScenarioComparisonProps) {
+export function ScenarioComparison({ schema, currency, currentGross, currentAdvanced }: ScenarioComparisonProps) {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [addGross, setAddGross] = useState(currentGross);
   const [addName, setAddName] = useState('');
 
   const addScenario = () => {
     if (addGross < 1000) return;
-    const idx = scenarios.length % SCENARIO_COLORS.length;
-    const name = addName.trim() || SCENARIO_NAMES[idx] || `Scenario ${scenarios.length + 1}`;
+    const idx = scenarios.length % COLORS.length;
+    const name = addName.trim() || NAMES[idx] || `Scenario ${scenarios.length + 1}`;
     const breakdown = calculateBreakdown(addGross, schema, currentAdvanced);
     setScenarios((prev) => [
       ...prev,
-      {
-        id: generateId(),
-        name,
-        gross: addGross,
-        breakdown,
-        advanced: currentAdvanced,
-        created_at: Date.now(),
-        color: SCENARIO_COLORS[idx],
-      },
+      { id: generateId(), name, gross: addGross, breakdown, advanced: currentAdvanced, created_at: Date.now(), color: COLORS[idx] },
     ]);
     setAddName('');
     setAddGross(0);
   };
 
   const removeScenario = (id: string) => setScenarios((prev) => prev.filter((s) => s.id !== id));
-
   const bestNet = scenarios.length ? Math.max(...scenarios.map((s) => s.breakdown.net)) : 0;
 
-  const metrics: Array<{
-    key: keyof Scenario['breakdown'];
-    label: string;
-    good: 'high' | 'low';
-    format: (v: number) => string;
-  }> = [
-    { key: 'gross',            label: 'Gross',            good: 'high', format: formatTZS },
-    { key: 'net',              label: 'Net Pay',          good: 'high', format: formatTZS },
-    { key: 'paye',             label: 'PAYE Tax',         good: 'low',  format: formatTZS },
-    { key: 'nssf',             label: 'NSSF',             good: 'low',  format: formatTZS },
-    { key: 'total_deductions', label: 'Total Deductions', good: 'low',  format: formatTZS },
-    { key: 'effective_rate',   label: 'Effective Rate',   good: 'low',  format: (v) => formatPercent(v) },
-    { key: 'marginal_rate',    label: 'Marginal Rate',    good: 'low',  format: (v) => formatPercent(v, 0) },
+  const metrics: Array<{ key: keyof Scenario['breakdown']; label: string; good: 'high' | 'low'; format: (v: number) => string }> = [
+    { key: 'gross',            label: 'Gross',          good: 'high', format: formatTZS },
+    { key: 'net',              label: 'Net Pay',        good: 'high', format: formatTZS },
+    { key: 'paye',             label: 'PAYE Tax',       good: 'low',  format: formatTZS },
+    { key: 'nssf',             label: 'NSSF',           good: 'low',  format: formatTZS },
+    { key: 'total_deductions', label: 'Deductions',     good: 'low',  format: formatTZS },
+    { key: 'effective_rate',   label: 'Effective Rate', good: 'low',  format: (v) => formatPercent(v) },
+    { key: 'marginal_rate',    label: 'Marginal Rate',  good: 'low',  format: (v) => formatPercent(v, 0) },
   ];
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="space-y-5"
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="space-y-2"
     >
-      {/* Add scenario panel */}
-      <div className="card-glass p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="p-1.5 rounded-lg bg-brand-500/15 text-brand-400">
-            <GitCompare size={15} />
+      {/* Add scenario */}
+      <div
+        className="card p-4 sm:p-5"
+        style={{ borderRadius: 'var(--radius-card)' }}
+      >
+        <div className="flex items-center gap-2.5 mb-4">
+          <div
+            className="p-1.5 rounded-lg"
+            style={{ background: 'var(--gold-ghost)', color: 'var(--gold)' }}
+          >
+            <GitCompare size={13} />
           </div>
-          <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+          <p
+            className="text-[13px] font-semibold"
+            style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-body)' }}
+          >
             Scenario Comparison
-          </h3>
-          <span className="ml-auto text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>
-            {scenarios.length}/8 scenarios
+          </p>
+          <span
+            className="ml-auto text-[11px]"
+            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+          >
+            {scenarios.length}/8
           </span>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-2.5">
           <input
             type="text"
             value={addName}
             onChange={(e) => setAddName(e.target.value)}
-            placeholder="Scenario name (optional)"
+            onKeyDown={(e) => e.key === 'Enter' && addScenario()}
+            placeholder="Label (optional)"
             autoComplete="off"
             autoCorrect="off"
-            className={cn(
-              'rounded-xl px-4 py-3 text-sm outline-none',
-              'border transition-colors sm:w-48 flex-shrink-0',
-              'focus:border-brand-500/40'
-            )}
+            className="rounded-xl px-3 py-2.5 text-[13px] outline-none border sm:w-40 flex-shrink-0 transition-all focus:border-gold/50"
             style={{
               background: 'var(--bg-elevated)',
               borderColor: 'var(--border-default)',
               color: 'var(--text-primary)',
-              fontFamily: 'Outfit, sans-serif',
-              // iOS zoom prevention
+              fontFamily: 'var(--font-body)',
               fontSize: 'max(16px, 0.875rem)',
+              boxShadow: 'var(--shadow-input)',
             }}
           />
           <div className="flex-1">
@@ -139,75 +116,86 @@ export function ScenarioComparison({
             onClick={addScenario}
             disabled={addGross < 1000 || scenarios.length >= 8}
             className={cn(
-              'flex items-center justify-center gap-2 px-5 rounded-xl font-semibold text-sm',
-              'bg-brand-500 text-white hover:bg-brand-600 active:scale-95',
-              'transition-all duration-150 flex-shrink-0',
-              'disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-brand-500',
-              // iOS touch target
-              'min-h-[44px]'
+              'flex items-center justify-center gap-1.5 px-4 rounded-xl font-semibold text-[13px]',
+              'transition-all duration-150',
+              'disabled:opacity-40 disabled:cursor-not-allowed',
+              'min-h-[44px] flex-shrink-0',
             )}
+            style={{
+              background: 'var(--gold)',
+              color: '#0C0C0D',
+              fontFamily: 'var(--font-body)',
+            }}
           >
-            <Plus size={16} />
+            <Plus size={14} />
             Add
           </button>
         </div>
       </div>
 
-      {/* Comparison table */}
+      {/* Table */}
       <AnimatePresence>
-        {scenarios.length === 0 && (
+        {scenarios.length === 0 ? (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="card-glass p-10 text-center"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="card p-10 text-center"
+            style={{ borderRadius: 'var(--radius-card)' }}
           >
-            <GitCompare size={32} className="mx-auto text-slate-700 mb-3" />
-            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            <GitCompare size={24} className="mx-auto mb-3" style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
+            <p
+              className="text-[12px]"
+              style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+            >
               Add two or more salary scenarios to compare them side by side.
             </p>
           </motion.div>
-        )}
-
-        {scenarios.length >= 1 && (
+        ) : (
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
+            initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
             className="overflow-x-auto no-scrollbar"
           >
             <div
-              className="card-glass overflow-hidden"
-              style={{ minWidth: `${180 + scenarios.length * 160}px` }}
+              className="card overflow-hidden"
+              style={{ minWidth: `${160 + scenarios.length * 148}px`, borderRadius: 'var(--radius-card)' }}
             >
               {/* Scenario headers */}
               <div
-                className="grid border-b"
+                className="grid"
                 style={{
-                  gridTemplateColumns: `180px repeat(${scenarios.length}, 1fr)`,
-                  borderColor: 'var(--border-subtle)',
+                  gridTemplateColumns: `160px repeat(${scenarios.length}, 1fr)`,
+                  borderBottom: '1px solid var(--border-subtle)',
                 }}
               >
-                <div className="px-4 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                <div
+                  className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest"
+                  style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+                >
                   Metric
                 </div>
                 {scenarios.map((s) => (
                   <div
                     key={s.id}
                     className="px-4 py-3 flex items-center justify-between gap-2"
-                    style={{ borderLeft: `2px solid ${s.color}20` }}
+                    style={{ borderLeft: `1px solid var(--border-hair)` }}
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ background: s.color }} />
-                      <span className="text-xs font-semibold truncate" style={{ color: 'var(--text-secondary)' }}>
+                      <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: s.color }} />
+                      <span
+                        className="text-[12px] font-semibold truncate"
+                        style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-body)' }}
+                      >
                         {s.name}
                       </span>
                     </div>
                     <button
                       onClick={() => removeScenario(s.id)}
-                      className="text-slate-700 hover:text-red-400 transition-colors flex-shrink-0 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                      className="flex-shrink-0 p-1.5 rounded transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                      style={{ color: 'var(--text-muted)' }}
+                      onMouseOver={(e) => { e.currentTarget.style.color = 'var(--rose)'; }}
+                      onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; }}
                     >
-                      <Trash2 size={12} />
+                      <Trash2 size={11} />
                     </button>
                   </div>
                 ))}
@@ -216,19 +204,22 @@ export function ScenarioComparison({
               {/* Metric rows */}
               {metrics.map((metric, mi) => {
                 const values = scenarios.map((s) => s.breakdown[metric.key] as number);
-                const best = metric.good === 'high' ? Math.max(...values) : Math.min(...values);
+                const best  = metric.good === 'high' ? Math.max(...values) : Math.min(...values);
                 const worst = metric.good === 'high' ? Math.min(...values) : Math.max(...values);
                 return (
                   <div
                     key={metric.key}
-                    className="grid border-b last:border-0"
+                    className="grid"
                     style={{
-                      gridTemplateColumns: `180px repeat(${scenarios.length}, 1fr)`,
-                      borderColor: 'var(--border-subtle)',
+                      gridTemplateColumns: `160px repeat(${scenarios.length}, 1fr)`,
+                      borderBottom: '1px solid var(--border-hair)',
                       background: mi % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent',
                     }}
                   >
-                    <div className="px-4 py-3 text-xs font-medium flex items-center" style={{ color: 'var(--text-muted)' }}>
+                    <div
+                      className="px-4 py-2.5 text-[11px] font-medium flex items-center"
+                      style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+                    >
                       {metric.label}
                     </div>
                     {scenarios.map((s) => {
@@ -236,17 +227,22 @@ export function ScenarioComparison({
                       const isBest  = val === best;
                       const isWorst = val === worst && scenarios.length > 1 && worst !== best;
                       return (
-                        <div key={s.id} className="px-4 py-3 flex items-center gap-1.5" style={{ borderLeft: `2px solid ${s.color}15` }}>
-                          <span className={cn(
-                            'font-mono text-xs font-semibold tabular-nums',
-                            isBest  && 'text-emerald-400',
-                            isWorst && 'text-red-400/70',
-                            !isBest && !isWorst && 'text-slate-400'
-                          )}>
+                        <div
+                          key={s.id}
+                          className="px-4 py-2.5 flex items-center gap-1.5"
+                          style={{ borderLeft: '1px solid var(--border-hair)' }}
+                        >
+                          <span
+                            className={cn('font-bold text-[12px] tabular-nums')}
+                            style={{
+                              fontFamily: 'var(--font-mono)',
+                              color: isBest ? 'var(--sage)' : isWorst ? 'var(--rose)' : 'var(--text-secondary)',
+                            }}
+                          >
                             {metric.format(val)}
                           </span>
-                          {isBest  && scenarios.length > 1 && <TrendingUp  size={10} className="text-emerald-400 flex-shrink-0" />}
-                          {isWorst && scenarios.length > 1 && <TrendingDown size={10} className="text-red-400/60 flex-shrink-0" />}
+                          {isBest  && scenarios.length > 1 && <TrendingUp  size={9} style={{ color: 'var(--sage)' }} />}
+                          {isWorst && scenarios.length > 1 && <TrendingDown size={9} style={{ color: 'var(--rose)', opacity: 0.6 }} />}
                         </div>
                       );
                     })}
@@ -259,19 +255,29 @@ export function ScenarioComparison({
                 <div
                   className="grid"
                   style={{
-                    gridTemplateColumns: `180px repeat(${scenarios.length}, 1fr)`,
-                    background: 'rgba(99,102,241,0.05)',
-                    borderTop: '1px solid rgba(99,102,241,0.15)',
+                    gridTemplateColumns: `160px repeat(${scenarios.length}, 1fr)`,
+                    background: 'var(--gold-ghost)',
+                    borderTop: '1px solid var(--border-default)',
                   }}
                 >
-                  <div className="px-4 py-3 text-xs text-brand-400 font-semibold">vs. Best Net</div>
+                  <div
+                    className="px-4 py-2.5 text-[11px] font-bold"
+                    style={{ color: 'var(--gold)', fontFamily: 'var(--font-body)' }}
+                  >
+                    vs. Best Net
+                  </div>
                   {scenarios.map((s) => {
                     const delta = s.breakdown.net - bestNet;
                     return (
-                      <div key={s.id} className="px-4 py-3 font-mono text-xs font-bold tabular-nums" style={{ borderLeft: `2px solid ${s.color}15` }}>
+                      <div
+                        key={s.id}
+                        className="px-4 py-2.5 text-[11px] font-bold tabular-nums"
+                        style={{ fontFamily: 'var(--font-mono)', borderLeft: '1px solid var(--border-hair)' }}
+                      >
                         {delta === 0
-                          ? <span className="text-emerald-400">Best ✓</span>
-                          : <span className="text-red-400/80">-{formatTZS(Math.abs(delta))}</span>}
+                          ? <span style={{ color: 'var(--sage)' }}>Best ✓</span>
+                          : <span style={{ color: 'var(--rose)' }}>−{formatTZS(Math.abs(delta))}</span>
+                        }
                       </div>
                     );
                   })}

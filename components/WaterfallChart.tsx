@@ -1,15 +1,8 @@
 'use client';
 
 import {
-  ComposedChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  LabelList,
+  ComposedChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, Cell, LabelList,
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { buildWaterfallData, compactNumber } from '@/lib/calculations';
@@ -21,169 +14,148 @@ interface WaterfallChartProps {
   className?: string;
 }
 
-interface CustomTooltipProps {
+function CustomTooltip({
+  active, payload, label,
+}: {
   active?: boolean;
-  payload?: Array<{
-    payload: {
-      amount: number;
-      tooltip: string;
-      type: 'positive' | 'negative' | 'result';
-      fill: string;
-    };
-  }>;
+  payload?: Array<{ payload: { amount: number; tooltip: string; fill: string } }>;
   label?: string;
-}
-
-function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
-  if (!active || !payload || !payload.length) return null;
+}) {
+  if (!active || !payload?.length) return null;
   const data = payload[0]?.payload;
   if (!data || data.amount === 0) return null;
 
   return (
-    <div className="bg-obsidian-800 border border-white/10 rounded-xl px-4 py-3 shadow-2xl min-w-[160px]">
-      <p className="text-[11px] text-slate-500 uppercase tracking-wider mb-1">{label}</p>
-      <p className="font-mono font-bold text-base" style={{ color: data.fill }}>
+    <div
+      className="rounded-xl px-4 py-3 min-w-[150px]"
+      style={{
+        background: 'var(--bg-overlay)',
+        border: '1px solid var(--border-default)',
+        boxShadow: 'var(--shadow-popover)',
+      }}
+    >
+      <p
+        className="text-[10px] uppercase tracking-wider mb-1.5"
+        style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+      >
+        {label}
+      </p>
+      <p
+        className="font-bold text-[13px] tabular-nums"
+        style={{ color: data.fill, fontFamily: 'var(--font-mono)' }}
+      >
         TZS {data.amount.toLocaleString('en-TZ')}
       </p>
-      <p className="text-[11px] text-slate-400 mt-1">{data.tooltip}</p>
+      <p
+        className="text-[11px] mt-1"
+        style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+      >
+        {data.tooltip}
+      </p>
     </div>
   );
 }
 
-interface CustomLabelProps {
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  value?: number;
-  fill?: string;
-}
-
 function CustomLabel({
-  x = 0,
-  y = 0,
-  width = 0,
-  height = 0,
-  value = 0,
-  fill,
-}: CustomLabelProps) {
+  x = 0, y = 0, width = 0, height = 0, value = 0, fill,
+}: {
+  x?: number; y?: number; width?: number; height?: number; value?: number; fill?: string;
+}) {
   if (!value) return null;
-
-  const isTall = height >= 24;
-
+  const isTall = height >= 22;
   return (
-      <text
-        x={x + width / 2}
-        y={isTall ? y + height / 2 : y - 6}
-        textAnchor="middle"
-        dominantBaseline={isTall ? 'middle' : 'auto'}
-        fill={isTall ? fill ?? '#fff' : '#CBD5F5'}
-        fontSize={11}
-        fontFamily="DM Mono, monospace"
-        fontWeight={600}
-        fillOpacity={0.95}
-      >
-        {compactNumber(value)}
-      </text>
-    );
-  }
+    <text
+      x={x + width / 2}
+      y={isTall ? y + height / 2 : y - 5}
+      textAnchor="middle"
+      dominantBaseline={isTall ? 'middle' : 'auto'}
+      fill={isTall ? (fill ?? '#fff') : 'var(--text-muted)'}
+      fontSize={10}
+      fontFamily="JetBrains Mono, monospace"
+      fontWeight={600}
+      fillOpacity={0.9}
+    >
+      {compactNumber(value)}
+    </text>
+  );
+}
 
 export function WaterfallChart({ breakdown, className }: WaterfallChartProps) {
   const data = buildWaterfallData(breakdown);
-  const maxValue =
-  breakdown.gross +
-  breakdown.benefits +
-  breakdown.nssf +
-  breakdown.paye;
+  const maxValue = breakdown.gross + breakdown.benefits + breakdown.nssf + breakdown.paye;
+
+  const LEGEND = [
+    { color: '#F59E0B', label: 'Gross' },
+    { color: '#38BDF8', label: 'NSSF' },
+    { color: '#FB7185', label: 'PAYE' },
+    { color: '#4ADE80', label: 'Net' },
+  ];
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-      className={cn('card-glass p-5', className)}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: 0.12 }}
+      className={cn('card p-4 sm:p-5', className)}
     >
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h3 className="text-sm font-semibold text-slate-300">Salary Waterfall</h3>
-          <p className="text-xs text-slate-600 mt-0.5">Gross → deductions → net breakdown</p>
-        </div>
-
-        {/* Legend */}
-        <div className="hidden sm:flex items-center gap-3 flex-wrap justify-end">
-          {[
-            { color: '#6366F1', label: 'Income' },
-            { color: '#F59E0B', label: 'NSSF' },
-            { color: '#EF4444', label: 'PAYE' },
-            { color: '#10B981', label: 'Net' },
-          ].map((l) => (
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-4">
+        <p
+          className="text-[11px] font-semibold uppercase tracking-widest"
+          style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+        >
+          Salary Waterfall
+        </p>
+        <div className="flex items-center gap-3">
+          {LEGEND.map((l) => (
             <div key={l.label} className="flex items-center gap-1.5">
-              <div
-                className="h-2.5 w-2.5 rounded-sm flex-shrink-0"
-                style={{ background: l.color }}
-              />
-              <span className="text-[11px] text-slate-500">{l.label}</span>
+              <div className="h-1.5 w-3 rounded-full" style={{ background: l.color }} />
+              <span
+                className="text-[10px]"
+                style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+              >
+                {l.label}
+              </span>
             </div>
           ))}
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={240}>
-        <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }} barGap={4}>
+      <ResponsiveContainer width="100%" height={220}>
+        <ComposedChart data={data} margin={{ top: 8, right: 4, bottom: 16, left: 0 }} barGap={4}>
           <CartesianGrid
             vertical={false}
-            stroke="rgba(255,255,255,0.04)"
+            stroke="var(--border-hair)"
             strokeDasharray="4 4"
           />
           <XAxis
             dataKey="name"
-            tick={{
-              fill: '#64748B',
-              fontSize: 11,
-              fontFamily: 'Outfit, sans-serif',
-              fontWeight: 500,
-            }}
+            tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'Epilogue, sans-serif', fontWeight: 500 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
             tickFormatter={(v) => compactNumber(v)}
             domain={[0, maxValue * 1.15]}
-            tick={{
-              fill: '#475569',
-              fontSize: 10,
-              fontFamily: 'DM Mono, monospace',
-            }}
+            tick={{ fill: 'var(--text-ghost)', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }}
             axisLine={false}
             tickLine={false}
-            width={52}
+            width={46}
           />
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ fill: 'rgba(255,255,255,0.02)', radius: 6 }}
+            cursor={{ fill: 'rgba(245,158,11,0.03)', radius: 4 }}
           />
-
-          {/* Invisible spacer bar — creates floating effect */}
           <Bar dataKey="invisible" stackId="waterfall" fill="transparent" />
-
-          {/* Visible amount bar */}
-          <Bar
-            dataKey="amount"
-            stackId="waterfall"
-            radius={[5, 5, 0, 0]}
-            maxBarSize={72}
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} fillOpacity={0.9} />
+          <Bar dataKey="amount" stackId="waterfall" radius={[4, 4, 0, 0]} maxBarSize={64}>
+            {data.map((entry, i) => (
+              <Cell key={`cell-${i}`} fill={entry.fill} fillOpacity={0.9} />
             ))}
             <LabelList
               dataKey="amount"
               position="inside"
               content={(props) => (
-                <CustomLabel
-                  {...(props as CustomLabelProps)}
-                  fill="rgba(255,255,255,0.85)"
-                />
+                <CustomLabel {...(props as Parameters<typeof CustomLabel>[0])} fill="rgba(255,255,255,0.9)" />
               )}
             />
           </Bar>

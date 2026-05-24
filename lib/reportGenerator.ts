@@ -53,16 +53,16 @@ export function generateReportHTML(input: ReportInput): string {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PAYE+ Salary Report — ${dateStr}</title>
   <link
-    href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Epilogue:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { font-size: 10pt; }
     body {
-      background: #ffffff;
-      color: #0F172A;
-      font-family: 'Outfit', sans-serif;
+      background: #FAFAF9;
+      color: #18181B;
+      font-family: 'Epilogue', system-ui, sans-serif;
       line-height: 1.6;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
@@ -70,14 +70,14 @@ export function generateReportHTML(input: ReportInput): string {
     .page { max-width: 800px; margin: 0 auto; }
 
     @media print {
-      html, body { margin: 0; padding: 0; background: white; }
+      html, body { margin: 0; padding: 0; background: #FAFAF9; }
       .no-print { display: none !important; }
       .page-break { page-break-before: always; }
     }
 
     /* Cover */
     .cover {
-      background: linear-gradient(140deg, #0A0D1A 0%, #0F1628 40%, #111827 100%);
+      background: #0C0C0D;
       color: white;
       padding: 44px 48px 40px;
       position: relative;
@@ -85,212 +85,258 @@ export function generateReportHTML(input: ReportInput): string {
     }
     .cover::before {
       content: '';
-      position: absolute; top: -80px; left: -80px;
-      width: 380px; height: 380px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%);
+      position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 400px; border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(245,158,11,0.12) 0%, transparent 70%);
     }
     .cover::after {
       content: '';
-      position: absolute; bottom: -60px; right: -60px;
-      width: 280px; height: 280px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(6,182,212,0.25) 0%, transparent 70%);
+      position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(245,158,11,0.3), transparent);
     }
     .cover-inner { position: relative; z-index: 1; }
 
-    .logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+    .logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
     .logo-mark {
-      width: 44px; height: 44px; border-radius: 12px;
-      background: linear-gradient(135deg, #6366F1 0%, #06B6D4 100%);
+      width: 40px; height: 40px; border-radius: 10px;
+      background: #1A1A1D;
+      border: 1px solid rgba(255,255,255,0.10);
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px;
-      color: white; flex-shrink: 0; letter-spacing: -0.5px;
+      font-family: 'Epilogue', sans-serif; font-weight: 800; font-size: 13px;
+      color: #F59E0B; flex-shrink: 0; letter-spacing: -0.5px;
     }
     .logo-text {
-      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 24px;
+      font-family: 'Epilogue', sans-serif; font-weight: 700; font-size: 22px;
       letter-spacing: -0.5px; color: white;
     }
-    .logo-text .plus { color: #818CF8; }
-    .logo-sub { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 0.05em; display: block; }
+    .logo-text .plus { color: #F59E0B; }
+    .logo-sub { font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.05em; display: block; margin-top: 1px; }
 
     .cover-title {
-      font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
-      letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 8px;
-      background: linear-gradient(135deg, #FFFFFF 0%, rgba(255,255,255,0.75) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-style: italic;
+      font-size: 36px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+      margin-bottom: 10px;
+      color: #FAFAFA;
     }
+    .cover-title .accent { color: #F59E0B; }
     .cover-subtitle {
-      font-size: 12px; color: rgba(255,255,255,0.45);
-      letter-spacing: 0.04em; text-transform: uppercase;
+      font-size: 11px; color: rgba(255,255,255,0.4);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      font-family: 'Epilogue', sans-serif;
     }
     .cover-meta {
       display: flex; gap: 24px; margin-top: 28px; padding-top: 20px;
-      border-top: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap;
+      border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap;
     }
     .meta-item { display: flex; flex-direction: column; gap: 2px; }
     .meta-label {
-      font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.35); font-weight: 600;
+      font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.3); font-weight: 700;
     }
     .meta-value {
-      font-family: 'DM Mono', monospace; font-size: 12px;
-      color: rgba(255,255,255,0.8); font-weight: 500;
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      color: rgba(255,255,255,0.75); font-weight: 500;
     }
     .schema-badge {
       margin-left: auto; align-self: flex-end;
       display: flex; align-items: center; gap: 6px;
       padding: 4px 12px; border-radius: 99px;
-      background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3);
-      font-size: 10px; color: #34D399; font-weight: 600; white-space: nowrap;
+      background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25);
+      font-size: 10px; color: #F59E0B; font-weight: 600; white-space: nowrap;
     }
-    .schema-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #34D399; }
+    .schema-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #F59E0B; }
 
     /* Content */
-    .content { padding: 36px 48px; }
+    .content { padding: 36px 48px; background: #FAFAF9; }
 
     .section { margin-bottom: 32px; }
     .section-header {
       display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
-      padding-bottom: 10px; border-bottom: 1px solid #E8EDF6;
+      padding-bottom: 10px; border-bottom: 1px solid #E4E4E7;
     }
     .section-icon {
       width: 28px; height: 28px; border-radius: 8px;
       display: flex; align-items: center; justify-content: center; font-size: 13px;
     }
     .section-title {
-      font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
-      color: #0F172A; letter-spacing: -0.2px;
+      font-family: 'Epilogue', sans-serif; font-size: 14px; font-weight: 700;
+      color: #18181B; letter-spacing: -0.2px;
     }
     .section-tag {
       margin-left: auto; font-size: 9px; text-transform: uppercase;
-      letter-spacing: 0.1em; font-weight: 600; color: #94A3B8;
+      letter-spacing: 0.1em; font-weight: 700; color: #A1A1AA;
+      font-family: 'Epilogue', sans-serif;
     }
 
     /* Metric cards */
     .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .metric-card {
-      border-radius: 12px; padding: 16px 18px;
+      border-radius: 12px; padding: 18px 20px;
       position: relative; overflow: hidden;
+      border: 1px solid #E4E4E7;
     }
     .metric-card.primary {
-      background: linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%);
-      border: 1.5px solid #BBF7D0; grid-column: span 2;
+      background: #FFFFFF;
+      border: 1px solid rgba(74,222,128,0.25);
+      border-left: 3px solid #4ADE80;
+      grid-column: span 2;
     }
-    .metric-card.deduction { background: #FAFBFF; border: 1px solid #E8EDF6; }
+    .metric-card.deduction-paye {
+      background: #FFFFFF;
+      border-left: 3px solid #FB7185;
+      border-color: rgba(251,113,133,0.2);
+    }
+    .metric-card.deduction-nssf {
+      background: #FFFFFF;
+      border-left: 3px solid #38BDF8;
+      border-color: rgba(56,189,248,0.2);
+    }
+    .metric-card.deduction { background: #FFFFFF; }
     .metric-label {
-      font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em;
-      font-weight: 700; margin-bottom: 6px;
+      font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em;
+      font-weight: 700; margin-bottom: 8px; font-family: 'Epilogue', sans-serif;
     }
-    .metric-card.primary .metric-label { color: #059669; }
-    .metric-card.deduction .metric-label { color: #94A3B8; }
-    .metric-value { font-family: 'DM Mono', monospace; font-weight: 700; }
-    .metric-card.primary .metric-value { font-size: 28px; color: #059669; line-height: 1.1; }
-    .metric-card.deduction .metric-value { font-size: 18px; color: #1E293B; }
-    .metric-sub { font-size: 10px; color: #94A3B8; margin-top: 4px; font-family: 'DM Mono', monospace; }
+    .metric-card.primary .metric-label { color: #15803D; }
+    .metric-card.deduction-paye .metric-label { color: #BE123C; }
+    .metric-card.deduction-nssf .metric-label { color: #0369A1; }
+    .metric-card.deduction .metric-label { color: #A1A1AA; }
+    .metric-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+    .metric-card.primary .metric-value {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-style: italic;
+      font-size: 30px;
+      font-weight: 400;
+      color: #16A34A;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .metric-card.deduction-paye .metric-value { font-size: 18px; color: #E11D48; }
+    .metric-card.deduction-nssf .metric-value { font-size: 18px; color: #0284C7; }
+    .metric-card.deduction .metric-value { font-size: 18px; color: #18181B; }
+    .metric-sub { font-size: 10px; color: #A1A1AA; margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
 
     /* Waterfall */
     .waterfall-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .waterfall-name {
-      font-size: 10px; font-weight: 600; color: #475569;
+      font-size: 10px; font-weight: 600; color: #71717A;
       width: 110px; flex-shrink: 0; text-align: right; padding-right: 4px;
+      font-family: 'Epilogue', sans-serif;
     }
     .waterfall-track {
-      flex: 1; height: 24px; background: #F1F5F9; border-radius: 5px;
+      flex: 1; height: 26px; background: #F4F4F5; border-radius: 6px;
       overflow: hidden; position: relative;
     }
     .waterfall-bar {
-      height: 100%; border-radius: 5px;
+      height: 100%; border-radius: 6px;
       display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;
     }
     .waterfall-bar-label {
-      font-family: 'DM Mono', monospace; font-size: 9px;
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
       font-weight: 700; color: rgba(255,255,255,0.9); white-space: nowrap;
     }
     .waterfall-amount {
-      font-family: 'DM Mono', monospace; font-size: 10px;
-      font-weight: 600; width: 100px; text-align: right; flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      font-weight: 600; width: 100px; text-align: right; flex-shrink: 0; color: #3F3F46;
     }
 
     /* Tables */
     table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 11px; }
     thead th {
-      background: #F8FAFF; padding: 8px 14px; text-align: left;
+      background: #F4F4F5; padding: 8px 14px; text-align: left;
       font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em;
-      font-weight: 700; color: #94A3B8; border-bottom: 1px solid #E8EDF6;
+      font-weight: 700; color: #A1A1AA; border-bottom: 1px solid #E4E4E7;
+      font-family: 'Epilogue', sans-serif;
     }
     thead th:last-child { text-align: right; }
-    tbody td { padding: 10px 14px; border-bottom: 1px solid #F1F5F9; color: #334155; }
-    tbody td:last-child { text-align: right; font-family: 'DM Mono', monospace; font-weight: 600; }
-    tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover td { background: #F8FAFF; }
-    .row-total td {
-      font-weight: 700; color: #0F172A; background: #F0F9FF;
-      border-top: 1px solid #BAE6FD; border-bottom: 1px solid #BAE6FD;
+    tbody td {
+      padding: 10px 14px; border-bottom: 1px solid #F4F4F5;
+      color: #3F3F46; font-family: 'Epilogue', sans-serif;
     }
-    .row-positive td:last-child { color: #059669; }
-    .row-negative td:last-child { color: #DC2626; }
-    .row-neutral td:last-child { color: #2563EB; }
-    .bracket-active { background: linear-gradient(90deg, #EFF6FF 0%, transparent 100%) !important; }
-    .bracket-active td { color: #1D4ED8 !important; font-weight: 600; }
+    tbody td:last-child { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+    tbody tr:last-child td { border-bottom: none; }
+    .row-total td {
+      font-weight: 700; color: #18181B; background: #FAFAF9;
+      border-top: 1px solid #E4E4E7; border-bottom: 1px solid #E4E4E7;
+    }
+    .row-positive td:last-child { color: #16A34A; }
+    .row-negative td:last-child { color: #E11D48; }
+    .row-neutral td:last-child { color: #D97706; }
+    .bracket-active { background: rgba(245,158,11,0.04) !important; }
+    .bracket-active td { color: #B45309 !important; font-weight: 600; }
     .bracket-badge {
       display: inline-flex; align-items: center; gap: 4px;
       padding: 1px 8px; border-radius: 99px; font-size: 9px; font-weight: 700;
-      background: #DBEAFE; color: #2563EB;
+      background: rgba(245,158,11,0.12); color: #D97706;
+      font-family: 'Epilogue', sans-serif;
     }
 
     /* Stats strip */
     .stats-strip {
-      display: flex; gap: 0; border: 1px solid #E8EDF6;
-      border-radius: 12px; overflow: hidden;
+      display: flex; gap: 0; border: 1px solid #E4E4E7;
+      border-radius: 12px; overflow: hidden; background: #FFFFFF;
     }
-    .stat-item { flex: 1; padding: 14px 16px; border-right: 1px solid #E8EDF6; }
+    .stat-item { flex: 1; padding: 14px 16px; border-right: 1px solid #E4E4E7; }
     .stat-item:last-child { border-right: none; }
     .stat-label {
-      font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em;
-      font-weight: 700; color: #94A3B8; margin-bottom: 4px;
+      font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em;
+      font-weight: 700; color: #A1A1AA; margin-bottom: 4px;
+      font-family: 'Epilogue', sans-serif;
     }
-    .stat-value { font-family: 'DM Mono', monospace; font-weight: 700; font-size: 15px; color: #0F172A; }
-    .stat-sub { font-size: 9px; color: #CBD5E1; margin-top: 1px; font-family: 'DM Mono', monospace; }
+    .stat-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; color: #18181B; }
+    .stat-sub { font-size: 9px; color: #D4D4D8; margin-top: 1px; font-family: 'JetBrains Mono', monospace; }
 
     /* Employer */
     .employer-banner {
-      background: linear-gradient(135deg, #EFF6FF 0%, #F0FDFB 100%);
-      border: 1.5px solid #BFDBFE; border-radius: 12px;
+      background: #FFFFFF;
+      border: 1px solid rgba(245,158,11,0.2);
+      border-left: 3px solid #F59E0B;
+      border-radius: 12px;
       padding: 18px 22px; margin-bottom: 16px;
     }
-    .employer-total { font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 700; color: #1D4ED8; margin-bottom: 4px; }
-    .employer-label { font-size: 10px; color: #64748B; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+    .employer-total {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-style: italic; font-size: 30px; font-weight: 400;
+      color: #D97706; margin-bottom: 4px; letter-spacing: -0.02em;
+    }
+    .employer-label { font-size: 9px; color: #A1A1AA; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; font-family: 'Epilogue', sans-serif; }
     .multiplier-badge {
       display: inline-flex; align-items: center; gap: 4px;
-      padding: 3px 10px; border-radius: 99px; background: #DBEAFE;
-      color: #1D4ED8; font-family: 'DM Mono', monospace;
+      padding: 3px 10px; border-radius: 99px; background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.2);
+      color: #D97706; font-family: 'JetBrains Mono', monospace;
       font-size: 11px; font-weight: 700; margin-top: 6px;
     }
 
     /* Highlight box */
     .highlight-box {
-      background: linear-gradient(135deg, #F8FAFF 0%, #F0F7FF 100%);
-      border-left: 3px solid #6366F1; border-radius: 0 8px 8px 0;
-      padding: 12px 16px; margin-bottom: 16px;
+      background: #FFFFFF;
+      border-left: 3px solid #F59E0B; border-radius: 0 10px 10px 0;
+      padding: 14px 18px; margin-bottom: 16px;
+      border: 1px solid #E4E4E7; border-left: 3px solid #F59E0B;
     }
-    .highlight-box p { font-size: 10px; color: #475569; line-height: 1.6; }
-    .highlight-box strong { color: #312E81; }
+    .highlight-box p { font-size: 10px; color: #52525B; line-height: 1.7; font-family: 'Epilogue', sans-serif; }
+    .highlight-box strong { color: #18181B; }
 
     /* Footer */
     .footer {
-      margin-top: 40px; padding-top: 20px; border-top: 1px solid #E8EDF6;
+      margin-top: 40px; padding-top: 20px; border-top: 1px solid #E4E4E7;
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
     }
     .footer-brand { display: flex; align-items: center; gap: 8px; }
     .footer-logo {
       width: 24px; height: 24px; border-radius: 6px;
-      background: linear-gradient(135deg, #6366F1 0%, #06B6D4 100%);
+      background: #18181B;
+      border: 1px solid #E4E4E7;
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 9px; color: white;
+      font-family: 'Epilogue', sans-serif; font-weight: 800; font-size: 9px; color: #F59E0B;
       letter-spacing: -0.3px;
     }
-    .footer-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; color: #475569; }
-    .footer-disclaimer { font-size: 8.5px; color: #CBD5E1; line-height: 1.5; max-width: 380px; text-align: right; }
+    .footer-name { font-family: 'Epilogue', sans-serif; font-weight: 700; font-size: 12px; color: #71717A; }
+    .footer-disclaimer { font-size: 8.5px; color: #D4D4D8; line-height: 1.5; max-width: 380px; text-align: right; font-family: 'Epilogue', sans-serif; }
   </style>
 </head>
 <body>
@@ -306,7 +352,7 @@ export function generateReportHTML(input: ReportInput): string {
           <span class="logo-sub">Tanzania Tax Intelligence</span>
         </div>
       </div>
-      <div class="cover-title">Salary &amp; Tax<br/>Analysis Report</div>
+      <div class="cover-title">Salary &amp; Tax<br/><span class="accent">Analysis</span> Report</div>
       <div class="cover-subtitle">Tanzania Revenue Authority · PAYE &amp; NSSF Computation</div>
       <div class="cover-meta">
         <div class="meta-item">
@@ -351,15 +397,15 @@ export function generateReportHTML(input: ReportInput): string {
             ? `<div class="metric-sub">≈ ${usd(breakdown.net, schema.usd_rate)} (@ ${fmt(schema.usd_rate)} TZS/USD)</div>`
             : `<div class="metric-sub">After NSSF, PAYE${breakdown.custom_fixed + breakdown.custom_percent_amount > 0 ? ' &amp; custom deductions' : ''}</div>`}
         </div>
-        <div class="metric-card deduction">
-          <div class="metric-label" style="color:#B45309;">NSSF Contribution</div>
-          <div class="metric-value" style="color:#D97706;">TZS ${fmt(breakdown.nssf)}</div>
-          <div class="metric-sub">${pct((breakdown.nssf / (grossTotal || 1)) * 100)} of gross</div>
-        </div>
-        <div class="metric-card deduction">
-          <div class="metric-label" style="color:#B91C1C;">PAYE Tax</div>
-          <div class="metric-value" style="color:#DC2626;">TZS ${fmt(breakdown.paye)}</div>
+        <div class="metric-card deduction-paye">
+          <div class="metric-label">PAYE Tax</div>
+          <div class="metric-value">TZS ${fmt(breakdown.paye)}</div>
           <div class="metric-sub">Marginal rate: ${pct(breakdown.marginal_rate, 0)}</div>
+        </div>
+        <div class="metric-card deduction-nssf">
+          <div class="metric-label">NSSF Contribution</div>
+          <div class="metric-value">TZS ${fmt(breakdown.nssf)}</div>
+          <div class="metric-sub">${pct((breakdown.nssf / (grossTotal || 1)) * 100)} of gross</div>
         </div>
       </div>
       <div class="stats-strip">
@@ -395,19 +441,19 @@ export function generateReportHTML(input: ReportInput): string {
       </div>
       <div class="waterfall">
         ${[
-          { name: breakdown.benefits > 0 ? 'Base Gross' : 'Gross Salary', value: breakdown.gross, color: '#6366F1' },
+          { name: breakdown.benefits > 0 ? 'Base Gross' : 'Gross Salary', value: breakdown.gross, color: '#F59E0B' },
           ...(breakdown.benefits > 0
-            ? [{ name: 'Benefits', value: breakdown.benefits, color: '#A78BFA' }]
+            ? [{ name: 'Benefits', value: breakdown.benefits, color: '#FCD34D' }]
             : []),
-          { name: 'NSSF (−)', value: breakdown.nssf, color: '#F59E0B' },
-          { name: 'PAYE Tax (−)', value: breakdown.paye, color: '#EF4444' },
+          { name: 'NSSF (−)', value: breakdown.nssf, color: '#38BDF8' },
+          { name: 'PAYE Tax (−)', value: breakdown.paye, color: '#FB7185' },
           ...(breakdown.heslb > 0
-            ? [{ name: 'HESLB (−)', value: breakdown.heslb, color: '#2563EB' }]
+            ? [{ name: 'HESLB (−)', value: breakdown.heslb, color: '#A78BFA' }]
             : []),
           ...(breakdown.custom_fixed + breakdown.custom_percent_amount > 0
-            ? [{ name: 'Custom Ded. (−)', value: breakdown.custom_fixed + breakdown.custom_percent_amount, color: '#EC4899' }]
+            ? [{ name: 'Custom Ded. (−)', value: breakdown.custom_fixed + breakdown.custom_percent_amount, color: '#FB7185' }]
             : []),
-          { name: 'Net Pay', value: breakdown.net, color: '#10B981' },
+          { name: 'Net Pay', value: breakdown.net, color: '#4ADE80' },
         ].map((row) => `
         <div class="waterfall-row">
           <div class="waterfall-name">${row.name}</div>

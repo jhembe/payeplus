@@ -229,7 +229,7 @@ export function buildWaterfallData(breakdown: SalaryBreakdown): WaterfallEntry[]
       name: 'Base',
       invisible: 0,
       amount: gross,
-      fill: '#6366F1',
+      fill: '#F59E0B',
       type: 'positive',
       tooltip: `Base Gross: ${fmtNum(gross)}`,
     });
@@ -237,7 +237,7 @@ export function buildWaterfallData(breakdown: SalaryBreakdown): WaterfallEntry[]
       name: 'Benefits',
       invisible: gross,
       amount: benefits,
-      fill: '#A78BFA',
+      fill: '#FCD34D',
       type: 'positive',
       tooltip: `Benefits: ${fmtNum(benefits)}`,
     });
@@ -246,7 +246,7 @@ export function buildWaterfallData(breakdown: SalaryBreakdown): WaterfallEntry[]
       name: 'Gross',
       invisible: 0,
       amount: gross + benefits,
-      fill: '#6366F1',
+      fill: '#F59E0B',
       type: 'positive',
       tooltip: `Gross Salary: ${fmtNum(gross + benefits)}`,
     });
@@ -256,7 +256,7 @@ export function buildWaterfallData(breakdown: SalaryBreakdown): WaterfallEntry[]
     name: 'NSSF',
     invisible: net + paye + (hasCustom ? custom_fixed + custom_percent_amount : 0),
     amount: nssf,
-    fill: '#F59E0B',
+    fill: '#38BDF8',
     type: 'negative',
     tooltip: `NSSF (${breakdown.gross > 0 ? ((nssf / (gross + benefits)) * 100).toFixed(1) : 0}%): ${fmtNum(nssf)}`,
   });
@@ -265,7 +265,7 @@ export function buildWaterfallData(breakdown: SalaryBreakdown): WaterfallEntry[]
     name: 'PAYE',
     invisible: net + (hasCustom ? custom_fixed + custom_percent_amount : 0),
     amount: paye,
-    fill: '#EF4444',
+    fill: '#FB7185',
     type: 'negative',
     tooltip: `PAYE Tax: ${fmtNum(paye)}`,
   });
@@ -275,7 +275,7 @@ export function buildWaterfallData(breakdown: SalaryBreakdown): WaterfallEntry[]
       name: 'HESLB',
       invisible: net + (hasCustom ? custom_fixed + custom_percent_amount : 0),
       amount: heslb,
-      fill: '#2563EB',
+      fill: '#A78BFA',
       type: 'negative',
       tooltip: `HESLB Student Loan: ${fmtNum(heslb)}`,
     });
@@ -286,7 +286,7 @@ export function buildWaterfallData(breakdown: SalaryBreakdown): WaterfallEntry[]
       name: 'Other',
       invisible: net,
       amount: custom_fixed + custom_percent_amount,
-      fill: '#EC4899',
+      fill: '#FB7185',
       type: 'negative',
       tooltip: `Custom Deductions: ${fmtNum(custom_fixed + custom_percent_amount)}`,
     });
@@ -296,7 +296,7 @@ export function buildWaterfallData(breakdown: SalaryBreakdown): WaterfallEntry[]
     name: 'Net Pay',
     invisible: 0,
     amount: net,
-    fill: '#10B981',
+    fill: '#4ADE80',
     type: 'result',
     tooltip: `Net Pay: ${fmtNum(net)}`,
   });
@@ -313,10 +313,10 @@ export function buildPieData(breakdown: SalaryBreakdown): PieEntry[] {
   if (total <= 0) return [];
 
   const entries: PieEntry[] = [
-    { name: 'Net Pay', value: net, fill: '#10B981', percent: (net / total) * 100 },
-    { name: 'PAYE Tax', value: paye, fill: '#EF4444', percent: (paye / total) * 100 }, 
-    { name: 'HESLB', value: heslb, fill: '#2563EB', percent: (heslb / total) * 100,},
-    { name: 'NSSF', value: nssf, fill: '#F59E0B', percent: (nssf / total) * 100 },
+    { name: 'Net Pay', value: net, fill: '#4ADE80', percent: (net / total) * 100 },
+    { name: 'PAYE Tax', value: paye, fill: '#FB7185', percent: (paye / total) * 100 },
+    { name: 'HESLB', value: heslb, fill: '#A78BFA', percent: (heslb / total) * 100 },
+    { name: 'NSSF', value: nssf, fill: '#38BDF8', percent: (nssf / total) * 100 },
   ];
 
   if (custom_fixed + custom_percent_amount > 0) {
@@ -324,7 +324,7 @@ export function buildPieData(breakdown: SalaryBreakdown): PieEntry[] {
     entries.push({
       name: 'Other',
       value: customTotal,
-      fill: '#EC4899',
+      fill: '#FB7185',
       percent: (customTotal / total) * 100,
     });
   }

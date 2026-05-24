@@ -1,14 +1,12 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Calculator, Zap } from 'lucide-react';
+import { ArrowRight, Calculator } from 'lucide-react';
 import { SalaryInput } from './SalaryInput';
 import { SalaryBreakdown } from './SalaryBreakdown';
-import { calculateGrossFromNet } from '@/lib/calculations';
+import { calculateGrossFromNet, formatTZS } from '@/lib/calculations';
 import type { TaxSchema, AdvancedOptions, Currency } from '@/lib/types';
-import { DEFAULT_ADVANCED } from '@/lib/types';
-import { formatTZS } from '@/lib/calculations';
 
 interface ReverseCalculatorProps {
   schema: TaxSchema;
@@ -26,26 +24,30 @@ export function ReverseCalculator({ schema, currency, advanced }: ReverseCalcula
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="space-y-5"
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="space-y-2"
     >
-      {/* Explainer */}
-      <div className="card-glass p-5">
-        <div className="flex items-start gap-3 mb-5">
-          <div className="p-2 rounded-xl bg-electric-500/15 text-electric-400 flex-shrink-0">
-            <Zap size={18} />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-slate-200">Reverse Salary Calculator</h3>
-            <p className="text-xs text-slate-500 mt-1">
-              Enter the net (take-home) pay you want to receive and PAYE+ will compute the gross
-              salary your employer must pay. Uses binary search with TZS 1 tolerance.
-            </p>
-          </div>
+      {/* Input panel */}
+      <div
+        className="card p-4 sm:p-5"
+        style={{ borderRadius: 'var(--radius-card)' }}
+      >
+        <div className="mb-4">
+          <p
+            className="text-[13px] font-semibold mb-1"
+            style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-body)' }}
+          >
+            Reverse Calculator
+          </p>
+          <p
+            className="text-[12px]"
+            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+          >
+            Enter desired take-home pay — PAYE+ solves the required gross.
+          </p>
         </div>
-
         <SalaryInput
           value={targetNet}
           onChange={setTargetNet}
@@ -55,93 +57,134 @@ export function ReverseCalculator({ schema, currency, advanced }: ReverseCalcula
         />
       </div>
 
-      {/* Visual flow indicator */}
+      {/* Results */}
       <AnimatePresence mode="wait">
         {result && (
           <motion.div
             key={result.required_gross}
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="space-y-4"
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="space-y-2"
           >
             {/* Required gross banner */}
-            <div className="card-glass p-5 border-brand-500/20 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-500/8 to-transparent pointer-events-none" />
+            <div
+              className="card-gold p-5 sm:p-6 relative overflow-hidden"
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-card)',
+              }}
+            >
+              <div
+                className="absolute inset-0 pointer-events-none rounded-[inherit]"
+                style={{ background: 'linear-gradient(135deg, var(--gold-ghost) 0%, transparent 50%)' }}
+              />
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">
-                    Required Gross Salary
-                  </p>
-                  <p
-                    className="text-3xl sm:text-4xl font-mono font-bold gradient-text-brand"
-                    style={{ fontFamily: "'DM Mono', monospace" }}
+              <p
+                className="relative text-[10px] font-bold uppercase tracking-widest mb-3"
+                style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+              >
+                Required Gross Salary
+              </p>
+
+              <p
+                className="relative leading-none mb-3"
+                style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontStyle: 'italic',
+                  fontSize: 'clamp(26px, 5vw, 34px)',
+                  fontWeight: 400,
+                  letterSpacing: '-0.02em',
+                  color: 'var(--gold)',
+                }}
+              >
+                {formatTZS(result.required_gross)}
+              </p>
+
+              <div className="relative flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-2 text-[12px]">
+                  <span
+                    className="px-2.5 py-1 rounded-lg font-bold"
+                    style={{
+                      background: 'var(--gold-ghost)',
+                      color: 'var(--gold)',
+                      fontFamily: 'var(--font-mono)',
+                      border: '1px solid var(--border-subtle)',
+                    }}
                   >
-                    {formatTZS(result.required_gross)}
-                  </p>
-                </div>
-
-                {/* Flow diagram */}
-                <div className="flex items-center gap-3 text-sm font-mono">
-                  <div className="text-center">
-                    <p className="text-xs text-slate-600 mb-1">Gross</p>
-                    <div className="px-3 py-1.5 rounded-lg bg-brand-500/15 text-brand-400 font-semibold text-sm">
-                      {(result.required_gross / 1_000_000).toFixed(3)}M
-                    </div>
-                  </div>
-                  <ArrowRight size={14} className="text-slate-600 flex-shrink-0" />
-                  <div className="text-center">
-                    <p className="text-xs text-slate-600 mb-1">Net</p>
-                    <div className="px-3 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 font-semibold text-sm">
-                      {(targetNet / 1_000_000).toFixed(3)}M
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/[0.05]">
-                <div className="text-xs text-slate-600">
-                  Gross-to-net ratio:{' '}
-                  <span className="text-slate-400 font-mono font-semibold">
-                    {((targetNet / result.required_gross) * 100).toFixed(1)}%
+                    {(result.required_gross / 1_000_000).toFixed(3)}M
+                  </span>
+                  <ArrowRight size={11} style={{ color: 'var(--text-muted)' }} />
+                  <span
+                    className="px-2.5 py-1 rounded-lg font-bold"
+                    style={{
+                      background: 'var(--sage-ghost)',
+                      color: 'var(--sage)',
+                      fontFamily: 'var(--font-mono)',
+                      border: '1px solid var(--border-subtle)',
+                    }}
+                  >
+                    {(targetNet / 1_000_000).toFixed(3)}M
                   </span>
                 </div>
-                <div className="text-xs text-slate-600">
-                  Converged in{' '}
-                  <span className="text-slate-400 font-mono font-semibold">
-                    {result.iterations}
-                  </span>{' '}
-                  iterations
+
+                <div
+                  className="flex items-center gap-4 text-[11px]"
+                  style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+                >
+                  <span>
+                    Ratio{' '}
+                    <span
+                      className="font-bold"
+                      style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}
+                    >
+                      {((targetNet / result.required_gross) * 100).toFixed(1)}%
+                    </span>
+                  </span>
+                  <span>
+                    Iterations{' '}
+                    <span
+                      className="font-bold"
+                      style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}
+                    >
+                      {result.iterations}
+                    </span>
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Full breakdown at the required gross */}
-            <div className="space-y-2">
-              <p className="text-xs text-slate-600 uppercase tracking-widest font-semibold px-1">
-                Breakdown at {formatTZS(result.required_gross)} gross
-              </p>
-              <SalaryBreakdown
-                breakdown={result.breakdown}
-                currency={currency}
-                usdRate={schema.usd_rate}
-              />
-            </div>
+            {/* Full breakdown */}
+            <p
+              className="text-[10px] font-bold uppercase tracking-widest px-1"
+              style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+            >
+              Breakdown at {formatTZS(result.required_gross)} gross
+            </p>
+            <SalaryBreakdown
+              breakdown={result.breakdown}
+              currency={currency}
+              usdRate={schema.usd_rate}
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Hint when empty */}
+      {/* Empty state */}
       {targetNet < 1000 && (
-        <div className="card-glass p-6 flex items-center justify-center text-center">
-          <div className="space-y-2">
-            <Calculator size={28} className="mx-auto text-slate-700" />
-            <p className="text-sm text-slate-600">
-              Enter a desired net salary above to calculate the required gross.
-            </p>
-          </div>
+        <div
+          className="card p-10 flex flex-col items-center justify-center text-center gap-3"
+          style={{ borderRadius: 'var(--radius-card)' }}
+        >
+          <Calculator size={22} style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
+          <p
+            className="text-[12px]"
+            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+          >
+            Enter a desired net salary to calculate the required gross.
+          </p>
         </div>
       )}
     </motion.div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { TrendingDown, Wallet, Shield, Receipt, ArrowUpRight, Percent, GraduationCap } from 'lucide-react';
+import { TrendingDown, Wallet, Shield, Receipt, ArrowUpRight, GraduationCap } from 'lucide-react';
 import { AnimatedNumber } from './AnimatedNumber';
 import { cn } from '@/lib/utils';
 import type { SalaryBreakdown as SalaryBreakdownType, Currency } from '@/lib/types';
@@ -13,118 +13,21 @@ interface SalaryBreakdownProps {
   usdRate: number;
 }
 
-interface MetricCard {
-  key: keyof SalaryBreakdownType | 'effective_rate_display';
-  label: string;
-  icon: React.ReactNode;
-  value: number;
-  description: string;
-  variant: 'primary' | 'warning' | 'danger' | 'success' | 'info';
-  isPercent?: boolean;
-  isMain?: boolean;
-}
-
-const VARIANTS = {
-  primary: {
-    icon: 'bg-brand-500/15 text-brand-400',
-    value: 'gradient-text-brand',
-    border: 'hover:border-brand-500/25',
-    glow: 'hover:shadow-brand-sm',
-  },
-  warning: {
-    icon: 'bg-amber-500/15 text-amber-400',
-    value: 'text-amber-400',
-    border: 'hover:border-amber-500/25',
-    glow: 'hover:shadow-[0_0_20px_rgba(245,158,11,0.1)]',
-  },
-  danger: {
-    icon: 'bg-red-500/15 text-red-400',
-    value: 'text-red-400',
-    border: 'hover:border-red-500/25',
-    glow: 'hover:shadow-[0_0_20px_rgba(239,68,68,0.1)]',
-  },
-  success: {
-    icon: 'bg-emerald-500/15 text-emerald-400',
-    value: 'gradient-text-success',
-    border: 'hover:border-emerald-500/25',
-    glow: 'hover:shadow-[0_0_20px_rgba(16,185,129,0.12)]',
-  },
-  info: {
-    icon: 'bg-sky-500/15 text-sky-400',
-    value: 'text-sky-400',
-    border: 'hover:border-sky-500/20',
-    glow: 'hover:shadow-[0_0_20px_rgba(14,165,233,0.1)]',
-  },
-};
-
 const container = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
 };
 
 const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+  hidden: { opacity: 0, y: 16 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
 };
 
 export function SalaryBreakdown({ breakdown, currency, usdRate }: SalaryBreakdownProps) {
-  const metrics: MetricCard[] = [
-    {
-      key: 'net',
-      label: 'Net Take-Home',
-      icon: <Wallet size={18} />,
-      value: breakdown.net,
-      description: 'After all deductions',
-      variant: 'success',
-      isMain: true,
-    },
-    {
-      key: 'paye',
-      label: 'PAYE Tax',
-      icon: <Receipt size={18} />,
-      value: breakdown.paye,
-      description: `Marginal rate: ${formatPercent(breakdown.marginal_rate)}`,
-      variant: 'danger',
-    },
-  
-    ...(breakdown.heslb > 0
-      ? ([{
-          key: 'heslb' as keyof SalaryBreakdownType,
-          label: 'HESLB Loan',
-          icon: <GraduationCap size={18} />,
-          value: breakdown.heslb,
-          description: 'Post-tax student loan repayment',
-          variant: 'info' as const,
-        }])
-      : []),
-  
-    {
-      key: 'nssf',
-      label: 'NSSF Contribution',
-      icon: <Shield size={18} />,
-      value: breakdown.nssf,
-      description: `${formatPercent(
-        breakdown.gross > 0
-          ? (breakdown.nssf / (breakdown.gross + breakdown.benefits)) * 100
-          : 0
-      )} of gross`,
-      variant: 'warning',
-    },
-    {
-      key: 'total_deductions',
-      label: 'Total Deductions',
-      icon: <TrendingDown size={18} />,
-      value: breakdown.total_deductions,
-      description: `Effective rate: ${formatPercent(breakdown.effective_rate)}`,
-      variant: 'info',
-    },
-  ];
-
-  // Append custom deductions row if present
+  const fmt = (n: number) => formatCurrency(n, currency, usdRate);
   const hasCustom = breakdown.custom_fixed + breakdown.custom_percent_amount > 0;
-
-  const fmt = (n: number) =>
-    formatCurrency(n, currency, usdRate);
+  const hasHeslb  = breakdown.heslb > 0;
+  const grossTotal = breakdown.gross + breakdown.benefits;
 
   return (
     <motion.div
@@ -132,100 +35,253 @@ export function SalaryBreakdown({ breakdown, currency, usdRate }: SalaryBreakdow
       variants={container}
       initial="hidden"
       animate="show"
-      className="w-full"
+      className="w-full space-y-2"
     >
-      {/* Metric grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {metrics.map((metric) => {
-          const v = VARIANTS[metric.variant];
-          return (
-            <motion.div
-              key={metric.key}
-              variants={item}
-              className={cn(
-                'card-glass p-4 sm:p-5 relative overflow-hidden group cursor-default',
-                'border transition-all duration-300',
-                v.border,
-                v.glow,
-                metric.isMain && 'col-span-2 lg:col-span-2'
-              )}
+      {/* ── Row 1: Net (hero) + PAYE + NSSF ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+
+        {/* ── Net Take-Home — HERO ── */}
+        <motion.div
+          variants={item}
+          className="card-sage col-span-2 sm:col-span-2 p-5 sm:p-6 relative overflow-hidden group"
+          style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-card)',
+          }}
+        >
+          {/* Tinted background wash */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-[inherit]"
+            style={{ background: 'linear-gradient(135deg, var(--sage-ghost) 0%, transparent 60%)' }}
+          />
+
+          <div className="relative flex items-start justify-between mb-3">
+            <div
+              className="p-1.5 rounded-lg"
+              style={{ background: 'var(--sage-ghost)', color: 'var(--sage)' }}
             >
-              {/* Background accent for main card */}
-              {metric.isMain && (
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent pointer-events-none" />
-              )}
-
-              <div className="flex items-start justify-between mb-3 sm:mb-4">
-                <div className={cn('p-2 rounded-lg', v.icon)}>
-                  {metric.icon}
-                </div>
-                {metric.isMain && (
-                  <ArrowUpRight
-                    size={14}
-                    className="text-emerald-400/40 group-hover:text-emerald-400 transition-colors"
-                  />
-                )}
-              </div>
-
-              <div className="space-y-1">
-                <p className={cn(
-                  'font-mono font-bold tabular-nums',
-                  metric.isMain ? 'text-2xl sm:text-3xl' : 'text-lg sm:text-xl',
-                  v.value
-                )}>
-                  <AnimatedNumber
-                    value={metric.value}
-                    formatter={fmt}
-                    duration={550}
-                  />
-                </p>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-                  {metric.label}
-                </p>
-                <p className="text-[11px] text-slate-600 font-mono">
-                  {metric.description}
-                </p>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Taxable income row */}
-      <motion.div variants={item} className="mt-3">
-        <div className="card-glass px-5 py-3 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
-              <Percent size={13} className="text-slate-500" />
-              <span className="text-xs text-slate-500 font-medium">Taxable Income</span>
-              <span className="font-mono text-sm font-semibold text-slate-300 tabular-nums">
-                {fmt(breakdown.taxable_income)}
-              </span>
+              <Wallet size={13} />
             </div>
-            <div className="h-3 w-px bg-white/10 hidden sm:block" />
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 font-medium">Effective Rate</span>
-              <span className="font-mono text-sm font-semibold text-slate-300">
-                {formatPercent(breakdown.effective_rate)}
-              </span>
-            </div>
-            <div className="h-3 w-px bg-white/10 hidden sm:block" />
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 font-medium">Marginal Rate</span>
-              <span className="font-mono text-sm font-semibold text-slate-300">
-                {formatPercent(breakdown.marginal_rate, 0)}
-              </span>
-            </div>
+            <ArrowUpRight
+              size={13}
+              className="group-hover:scale-110 transition-transform duration-200"
+              style={{ color: 'var(--sage)', opacity: 0.4 }}
+            />
           </div>
 
-          {hasCustom && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">Custom</span>
-              <span className="font-mono text-xs font-semibold text-pink-400">
-                -{fmt(breakdown.custom_fixed + breakdown.custom_percent_amount)}
-              </span>
+          {/* Hero number — Instrument Serif italic */}
+          <p
+            className="relative leading-none mb-2"
+            style={{
+              fontFamily: 'var(--font-serif)',
+              fontStyle: 'italic',
+              fontSize: 'clamp(26px, 5vw, 36px)',
+              fontWeight: 400,
+              letterSpacing: '-0.02em',
+              color: 'var(--sage)',
+            }}
+          >
+            <AnimatedNumber value={breakdown.net} formatter={fmt} duration={700} />
+          </p>
+
+          <p
+            className="text-[10px] font-bold uppercase tracking-widest mb-0.5"
+            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+          >
+            Net Take-Home
+          </p>
+          <p
+            style={{
+              fontSize: '11px',
+              fontFamily: 'var(--font-mono)',
+              color: 'var(--text-muted)',
+            }}
+          >
+            {formatPercent((breakdown.net / (grossTotal || 1)) * 100, 1)} of gross
+          </p>
+        </motion.div>
+
+        {/* ── PAYE ── */}
+        <motion.div
+          variants={item}
+          className="card-rose p-4 relative overflow-hidden group"
+          style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-card)',
+          }}
+        >
+          <div
+            className="absolute inset-0 pointer-events-none rounded-[inherit]"
+            style={{ background: 'linear-gradient(135deg, var(--rose-ghost) 0%, transparent 60%)' }}
+          />
+          <div
+            className="relative p-1.5 rounded-lg mb-3 inline-flex"
+            style={{ background: 'var(--rose-ghost)', color: 'var(--rose)' }}
+          >
+            <Receipt size={13} />
+          </div>
+          <p
+            className="relative font-bold tabular-nums leading-none mb-1.5"
+            style={{
+              fontSize: '18px',
+              fontFamily: 'var(--font-mono)',
+              letterSpacing: '-0.03em',
+              color: 'var(--rose)',
+            }}
+          >
+            <AnimatedNumber value={breakdown.paye} formatter={fmt} duration={550} />
+          </p>
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5"
+            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>
+            PAYE Tax
+          </p>
+          <p style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+            {formatPercent(breakdown.marginal_rate, 0)} marginal
+          </p>
+        </motion.div>
+
+        {/* ── NSSF ── */}
+        <motion.div
+          variants={item}
+          className="card-sky p-4 relative overflow-hidden group"
+          style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-card)',
+          }}
+        >
+          <div
+            className="absolute inset-0 pointer-events-none rounded-[inherit]"
+            style={{ background: 'linear-gradient(135deg, var(--sky-ghost) 0%, transparent 60%)' }}
+          />
+          <div
+            className="relative p-1.5 rounded-lg mb-3 inline-flex"
+            style={{ background: 'var(--sky-ghost)', color: 'var(--sky)' }}
+          >
+            <Shield size={13} />
+          </div>
+          <p
+            className="relative font-bold tabular-nums leading-none mb-1.5"
+            style={{
+              fontSize: '18px',
+              fontFamily: 'var(--font-mono)',
+              letterSpacing: '-0.03em',
+              color: 'var(--sky)',
+            }}
+          >
+            <AnimatedNumber value={breakdown.nssf} formatter={fmt} duration={550} />
+          </p>
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5"
+            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>
+            NSSF
+          </p>
+          <p style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+            {formatPercent((breakdown.nssf / (grossTotal || 1)) * 100, 1)} of gross
+          </p>
+        </motion.div>
+      </div>
+
+      {/* ── Stats strip ── */}
+      <motion.div variants={item}>
+        <div
+          className="card overflow-hidden"
+          style={{ borderRadius: 'var(--radius-card)' }}
+        >
+          <div
+            className={cn(
+              'grid divide-x',
+              hasHeslb || hasCustom ? 'grid-cols-4' : 'grid-cols-3'
+            )}
+            style={{ borderColor: 'var(--border-hair)' }}
+          >
+            {/* Taxable Income */}
+            <div className="px-3.5 py-3">
+              <p
+                className="text-[9px] font-bold uppercase tracking-widest mb-1.5"
+                style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+              >
+                Taxable
+              </p>
+              <p
+                className="font-bold tabular-nums text-[12px]"
+                style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}
+              >
+                {fmt(breakdown.taxable_income)}
+              </p>
             </div>
-          )}
+
+            {/* Effective Rate */}
+            <div className="px-3.5 py-3">
+              <p
+                className="text-[9px] font-bold uppercase tracking-widest mb-1.5"
+                style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+              >
+                Effective
+              </p>
+              <p
+                className="font-bold text-[12px]"
+                style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}
+              >
+                {formatPercent(breakdown.effective_rate, 1)}
+              </p>
+            </div>
+
+            {/* Total Deductions */}
+            <div className="px-3.5 py-3">
+              <p
+                className="text-[9px] font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1"
+                style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+              >
+                <TrendingDown size={9} />
+                Deductions
+              </p>
+              <p
+                className="font-bold tabular-nums text-[12px]"
+                style={{ fontFamily: 'var(--font-mono)', color: 'var(--rose)' }}
+              >
+                {fmt(breakdown.total_deductions)}
+              </p>
+            </div>
+
+            {/* HESLB — when present */}
+            {hasHeslb && (
+              <div className="px-3.5 py-3">
+                <p
+                  className="text-[9px] font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1"
+                  style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+                >
+                  <GraduationCap size={9} />
+                  HESLB
+                </p>
+                <p
+                  className="font-bold tabular-nums text-[12px]"
+                  style={{ fontFamily: 'var(--font-mono)', color: 'var(--violet)' }}
+                >
+                  {fmt(breakdown.heslb)}
+                </p>
+              </div>
+            )}
+
+            {/* Custom — when present and no HESLB */}
+            {!hasHeslb && hasCustom && (
+              <div className="px-3.5 py-3">
+                <p
+                  className="text-[9px] font-bold uppercase tracking-widest mb-1.5"
+                  style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}
+                >
+                  Custom
+                </p>
+                <p
+                  className="font-bold tabular-nums text-[12px]"
+                  style={{ fontFamily: 'var(--font-mono)', color: 'var(--violet)' }}
+                >
+                  -{fmt(breakdown.custom_fixed + breakdown.custom_percent_amount)}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </motion.div>
     </motion.div>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface SalaryInputProps {
@@ -14,13 +13,11 @@ interface SalaryInputProps {
   autoFocus?: boolean;
 }
 
-/** Formats an integer as comma-separated: 1500000 → "1,500,000" */
 function formatWithCommas(n: number): string {
   if (!n || isNaN(n)) return '';
   return new Intl.NumberFormat('en-US').format(n);
 }
 
-/** Strips commas/non-digits and returns the integer value */
 function parseRawDigits(str: string): number {
   const digits = str.replace(/[^0-9]/g, '');
   if (!digits) return 0;
@@ -28,11 +25,6 @@ function parseRawDigits(str: string): number {
   return isNaN(n) ? 0 : n;
 }
 
-/**
- * After reformatting with commas, compute where the cursor should land.
- * Strategy: count digit characters to the left of oldCursor in oldFormatted,
- * then find that same nth-digit position in newFormatted.
- */
 function computeNewCursor(oldFormatted: string, newFormatted: string, oldCursor: number): number {
   let digitsBefore = 0;
   for (let i = 0; i < oldCursor && i < oldFormatted.length; i++) {
@@ -52,7 +44,7 @@ export function SalaryInput({
   value,
   onChange,
   label = 'Gross Monthly Salary',
-  placeholder = '0',
+  placeholder = '',
   prefix = 'TZS',
   className,
   autoFocus = false,
@@ -60,16 +52,13 @@ export function SalaryInput({
   const inputRef = useRef<HTMLInputElement>(null);
   const isFocused = useRef(false);
 
-  // Sync display when parent resets value externally (e.g. to 0)
   useEffect(() => {
     const el = inputRef.current;
     if (!el || isFocused.current) return;
     el.value = value > 0 ? formatWithCommas(value) : '';
   }, [value]);
 
-  const handleFocus = useCallback(() => {
-    isFocused.current = true;
-  }, []);
+  const handleFocus = useCallback(() => { isFocused.current = true; }, []);
 
   const handleBlur = useCallback(() => {
     isFocused.current = false;
@@ -80,43 +69,28 @@ export function SalaryInput({
     onChange(numeric);
   }, [onChange]);
 
-  const handleInput = useCallback(
-    (e: React.FormEvent<HTMLInputElement>) => {
-      const el = e.currentTarget;
-      const oldFormatted = el.value;
-      const oldCursor = el.selectionStart ?? oldFormatted.length;
+  const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
+    const el = e.currentTarget;
+    const oldFormatted = el.value;
+    const oldCursor = el.selectionStart ?? oldFormatted.length;
+    const numeric = parseRawDigits(oldFormatted);
+    const newFormatted = numeric > 0 ? formatWithCommas(numeric) : '';
 
-      const numeric = parseRawDigits(oldFormatted);
-      const newFormatted = numeric > 0 ? formatWithCommas(numeric) : '';
-
-      if (el.value !== newFormatted) {
-        const newCursor = computeNewCursor(oldFormatted, newFormatted, oldCursor);
-        el.value = newFormatted;
-        // rAF avoids iOS flicker when repositioning cursor
-        requestAnimationFrame(() => {
-          try {
-            el.setSelectionRange(newCursor, newCursor);
-          } catch {
-            // Safari can throw on setSelectionRange — safe to ignore
-          }
-        });
-      }
-
-      onChange(numeric);
-    },
-    [onChange]
-  );
+    if (el.value !== newFormatted) {
+      const newCursor = computeNewCursor(oldFormatted, newFormatted, oldCursor);
+      el.value = newFormatted;
+      requestAnimationFrame(() => {
+        try { el.setSelectionRange(newCursor, newCursor); } catch { /* Safari */ }
+      });
+    }
+    onChange(numeric);
+  }, [onChange]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    const navigationKeys = [
-      'Backspace','Delete','Tab','Escape','Enter',
-      'ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End',
-    ];
+    const nav = ['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'];
     const isDigit = /^[0-9]$/.test(e.key);
     const isModifier = e.ctrlKey || e.metaKey || e.altKey;
-    if (!isDigit && !navigationKeys.includes(e.key) && !isModifier) {
-      e.preventDefault();
-    }
+    if (!isDigit && !nav.includes(e.key) && !isModifier) e.preventDefault();
   }, []);
 
   const initialDisplay = value > 0 ? formatWithCommas(value) : '';
@@ -125,36 +99,49 @@ export function SalaryInput({
     <div className={cn('w-full', className)}>
       {label && (
         <label
-          className="block text-xs font-semibold uppercase tracking-widest mb-3"
-          style={{ color: 'var(--text-tertiary)' }}
+          className="block mb-2"
+          style={{
+            fontSize: '10px',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            color: 'var(--text-muted)',
+            fontFamily: 'var(--font-body)',
+          }}
         >
           {label}
         </label>
       )}
 
-      <motion.div     
-      className={cn(
-          'relative flex items-center gap-3 px-4 sm:px-5 py-2.5 rounded-2xl cursor-text',
-          'border transition-all duration-300 overflow-hidden',
-          'focus-within:border-brand-500 focus-within:shadow-[0_0_0_3px_rgba(99,102,241,0.15)]'
-        )}
-        style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-default)' }}
-        whileTap={{ scale: 0.998 }}
+      <div
+        className="relative flex items-center rounded-xl border cursor-text transition-all duration-150 focus-within:border-gold/50"
+        style={{
+          background: 'var(--bg-elevated)',
+          borderColor: 'var(--border-default)',
+          minHeight: '54px',
+          boxShadow: 'var(--shadow-input)',
+        }}
         onClick={() => inputRef.current?.focus()}
       >
-        {/* Currency badge */}
-        <span className="flex-shrink-0 text-xs font-bold px-2 py-0.5 rounded-md font-mono tracking-wider transition-colors duration-200 select-none bg-brand-500/15 text-brand-400">
-          {prefix}
-        </span>
+        {/* Currency prefix */}
+        <div
+          className="flex-shrink-0 flex items-center self-stretch px-3.5"
+          style={{ borderRight: '1px solid var(--border-hair)' }}
+        >
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.06em',
+              color: 'var(--gold)',
+            }}
+          >
+            {prefix}
+          </span>
+        </div>
 
-        {/*
-          iOS-safe input:
-          · type="text" so we control formatting (type="number" strips commas)
-          · inputMode="decimal" → numeric keypad on iOS/Android
-          · font-size >= 16px → prevents iOS auto-zoom on focus
-          · autoCorrect/autoCapitalize/spellCheck off → no red squiggles
-          · pattern hints iOS to show number pad
-        */}
+        {/* Number input — font-size ≥ 16px prevents iOS auto-zoom */}
         <input
           ref={inputRef}
           type="text"
@@ -172,26 +159,31 @@ export function SalaryInput({
           autoCapitalize="none"
           spellCheck={false}
           aria-label={label || 'Salary amount'}
-          className="
-            flex-1 min-w-0
-            bg-transparent outline-none
-            text-right truncate
-            font-mono font-bold tabular-nums
-            placeholder:text-slate-700
-          "
-        style={{
-          fontSize: '16px',        // modest size, still prevents iOS zoom
-          lineHeight: '1.4',
-          color: 'var(--text-primary)',
-          WebkitAppearance: 'none', // remove iOS default styling
-        }}
+          className="flex-1 min-w-0 bg-transparent outline-none text-right px-4 truncate"
+          style={{
+            fontSize: '22px',
+            fontWeight: 700,
+            lineHeight: 1.3,
+            letterSpacing: '-0.03em',
+            color: 'var(--text-primary)',
+            fontFamily: 'var(--font-mono)',
+            WebkitAppearance: 'none',
+          }}
         />
-      </motion.div>
+      </div>
 
-      <p className="mt-2 text-xs text-right font-mono" style={{ color: 'var(--text-muted)' }}>
+      {/* Sub-label */}
+      <p
+        className="mt-1.5 text-right"
+        style={{
+          fontSize: '11px',
+          fontFamily: 'var(--font-mono)',
+          color: 'var(--text-ghost)',
+        }}
+      >
         {value > 0
-          ? `≈ ${(value / 1_000_000).toFixed(3)}M TZS / month`
-          : 'Enter your gross monthly salary'}
+          ? `${(value / 1_000_000).toFixed(3)}M · ${(value * 12 / 1_000_000).toFixed(2)}M / yr`
+          : 'Enter monthly gross salary'}
       </p>
     </div>
   );
