@@ -24,11 +24,12 @@ app/
 │   └── schema/route.ts       # Tax schema proxy + cache
 ├── globals.css               # Design tokens, global classes, animations
 ├── layout.tsx                # Root layout — PWA meta, FOCT prevention, SW registration
-└── page.tsx                  # App shell — tab routing, state orchestration
+└── page.tsx                  # App shell — desktop sidebar layout, tab routing, state orchestration
 
 components/
-├── Header.tsx                # Slim 48px topbar: logo · schema status · controls
-├── TabNavigation.tsx         # Desktop pill bar + mobile bottom nav
+├── Header.tsx                # Full-width sticky topbar: logo · schema status · controls
+├── TabNavigation.tsx         # Exports: TabNavigation (sm–lg horizontal bar), SidebarTabNav (lg+ vertical),
+│                             #          MobileTabNav (fixed bottom, sm:hidden), TABS array
 ├── SalaryInput.tsx           # Formatted TZS/USD input with cursor preservation
 ├── SalaryBreakdown.tsx       # Metric cards — net pay, PAYE, NSSF, deductions
 ├── WaterfallChart.tsx        # Gross → deductions → net waterfall (Recharts)
@@ -115,32 +116,79 @@ PAYE+ is a full Progressive Web App — installable, offline-capable:
 - **Registration** — inline `<script>` in `app/layout.tsx` registers the SW after hydration
 - **Offline** — `useSchema` hook falls back to bundled `tax_schema.json` when network is unavailable
 
+## Layout Architecture
+
+### Responsive breakpoints
+- **< 640px (mobile)**: full-width content + fixed bottom nav (`MobileTabNav`)
+- **640px–1023px (sm/md)**: horizontal tab bar at top, no sidebar
+- **≥ 1024px (lg/desktop)**: sticky 208px left sidebar (`SidebarTabNav`) + wider content area
+
+### Page structure (`page.tsx`)
+```
+<div>                          ← full viewport, bg-base
+  <GradientBackground />       ← fixed, z-0
+  <Header />                   ← full-width sticky, z-20, max-w-6xl inner container
+  <div relative z-10>
+    <div max-w-6xl mx-auto lg:flex>
+      <aside hidden lg:flex>   ← sticky sidebar, top-[52px], h-[calc(100dvh-52px)]
+        <SidebarTabNav />
+      </aside>
+      <main flex-1 min-w-0>
+        <TabNavigation />      ← lg:hidden horizontal bar
+        <AnimatePresence>      ← tab content (NO motion.div wrapping MobileTabNav)
+          {tab panels}
+        </AnimatePresence>
+      </main>
+    </div>
+  </div>
+  <MobileTabNav />             ← sm:hidden, fixed bottom, z-30 — MUST stay here at root
+</div>
+```
+
+**Critical:** `MobileTabNav` must be rendered at the root level, outside any `motion.div` with `y` transforms. Framer Motion keeps `transform: translateY(0px)` on animated elements after completion, which creates a new CSS containing block and breaks `position: fixed` on descendants.
+
 ## Design System
 
 All surfaces and colours are CSS custom properties in `globals.css`:
 
 ```css
 /* Dark (default) */
---bg-base:      #080B14   /* page background */
---bg-surface:   #0E1019   /* card surface */
---bg-elevated:  #13172A   /* input / nested background */
---text-primary: #F1F5F9
---text-secondary:#94A3B8
---text-tertiary: #475569
---text-muted:   #334155
---brand-indigo: #6366F1   /* primary accent */
---brand-cyan:   #06B6D4   /* secondary accent */
+--bg-base:      #0C0C0D   /* page background */
+--bg-surface:   #111113   /* card surface */
+--bg-elevated:  #1A1A1D   /* input / nested background */
+--text-primary:   #F4F4F5
+--text-secondary: #C4C4CC  /* high contrast — not dimmed */
+--text-tertiary:  #8E8E96
+--text-muted:     #6C6C74
+--text-ghost:     #48484F
+--header-bg:  rgba(12,12,13,0.88)   /* header backdrop */
+--nav-bg:     rgba(12,12,13,0.97)   /* mobile bottom nav backdrop */
+
+/* Light */
+--bg-base:      #F6F6F4
+--bg-surface:   #FFFFFF
+--bg-elevated:  #EDEDEB
+--text-primary:   #18181B
+--text-secondary: #27272A
+--text-tertiary:  #52525B
+--text-muted:     #71717A
+--header-bg:  rgba(246,246,244,0.92)
+--nav-bg:     rgba(255,255,255,0.97)
 ```
 
-Light mode overrides live in `.light {}` and are applied by a blocking inline script in `layout.tsx` to prevent flash of wrong theme (FOCT).
+Light mode overrides live in `.light {}` and are applied by a blocking inline script in `layout.tsx` to prevent flash of wrong theme (FOCT). **When adding new CSS vars used in immediately-visible chrome (header, nav), also add them to the FOCT script.**
 
-**Fonts**: Syne (display/headings) · Outfit (body) · DM Mono (numbers/labels)
-**Card style**: `.card-glass` — frosted glass with `backdrop-filter: blur(12px)`
-**Mobile nav**: Bottom navigation bar on < 640px; horizontal pill tabs on desktop
+**Fonts**: `Instrument Serif` (not used for hero numbers) · `Epilogue` (body/UI) · `JetBrains Mono` (all numbers and data)
+- Hero financial figures (net pay, employer cost, required gross): `var(--font-mono)`, `fontWeight: 700`, `letterSpacing: '-0.04em'` — **no italic, no serif**
+
+**Primary accent**: amber gold `--gold: #F59E0B` (light: `#D97706`)
+**Semantic colors**: `--sage` (net pay/positive), `--rose` (PAYE/deductions), `--sky` (NSSF), `--violet` (HESLB)
+**Card style**: `.card`, `.card-sage`, `.card-rose`, `.card-sky`, `.card-gold`, `.card-violet` — left accent via `box-shadow: inset 3px 0 0 var(--color)`
+
+**URL sharing**: State encoded as `?g={gross}&nssf={rate}&heslb={0|1}&hrate={rate}&ben={amount}&bni={0|1}&cfix={amount}&cpct={percent}` — synced via `history.replaceState` in page.tsx.
 
 ## Known Gaps / Roadmap
 
-- [ ] URL-encoded share links (salary params in query string)
 - [ ] Local calculation history (last 10, localStorage)
 - [ ] Annual tax summary view
 - [ ] PPF (Parastatal Pension Fund) calculation option
