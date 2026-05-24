@@ -12,7 +12,7 @@ services:
       # Optional: override schema URL to serve from external CDN/API
       # - NEXT_PUBLIC_SCHEMA_URL=https://your-cdn.com/tax_schema.json
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000"]
       interval: 30s
       timeout: 10s
       retries: 3
